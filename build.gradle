@@ -1,0 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // This classpath should be compatible with your Android Studio version
+        classpath 'com.android.tools.build:gradle:8.13.1'
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
