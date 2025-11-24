@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Primary tones (indigo/violet like mockups) -->
+    <color name="primary_start">#6366F1</color> <!-- indigo-500 -->
+    <color name="primary_end">#7C3AED</color>   <!-- violet-600 -->
+    <color name="primary">#6C63FF</color>       <!-- button fill -->
+    <color name="primary_dark">#5B55E6</color>
+
+    <!-- Surfaces / text -->
+    <color name="surface">#F5F7FB</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="outline">#E5E7EB</color>
+</resources>
