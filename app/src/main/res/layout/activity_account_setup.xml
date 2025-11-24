@@ -35,43 +35,96 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <Button
-                android:id="@+id/btnCurrency"
+            <!-- Monthly Income -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Monthly Income"
+                android:textColor="@color/text_primary"/>
+            <EditText
+                android:id="@+id/etMonthlyIncome"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="1) Choose Currency"
-                android:background="@drawable/bg_primary_button"
-                android:textColor="@color/white"/>
+                android:hint="e.g. 3200"
+                android:inputType="number"
+                android:background="@drawable/bg_input"
+                android:padding="12dp"/>
 
             <Space android:layout_width="0dp" android:layout_height="12dp"/>
 
-            <Button
-                android:id="@+id/btnCategories"
+            <!-- Choose Currency -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose Currency"
+                android:textColor="@color/text_primary"/>
+            <Spinner
+                android:id="@+id/spCurrency"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="2) Select Categories"
-                android:background="@drawable/bg_primary_button"
-                android:textColor="@color/white"/>
+                android:background="@drawable/bg_input"
+                android:padding="8dp"/>
 
             <Space android:layout_width="0dp" android:layout_height="12dp"/>
 
-            <Button
-                android:id="@+id/btnBudget"
+            <!-- Select Categories (multi-select via chips/comma) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Categories"
+                android:textColor="@color/text_primary"/>
+            <MultiAutoCompleteTextView
+                android:id="@+id/multiCategories"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="3) Set Monthly Budget"
-                android:background="@drawable/bg_primary_button"
-                android:textColor="@color/white"/>
+                android:layout_height="wrap_content"
+                android:hint="Choose one or more"
+                android:background="@drawable/bg_input"
+                android:padding="12dp"
+                android:inputType="text"/>
 
             <Space android:layout_width="0dp" android:layout_height="12dp"/>
 
-            <Button
-                android:id="@+id/btnGoal"
+            <!-- Monthly Budget -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set Monthly Budget"
+                android:textColor="@color/text_primary"/>
+            <EditText
+                android:id="@+id/etMonthlyBudget"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="4) (Optional) Create Goal"
-                android:background="@drawable/bg_primary_button"
-                android:textColor="@color/white"/>
+                android:hint="e.g. 2000"
+                android:inputType="number"
+                android:background="@drawable/bg_input"
+                android:padding="12dp"/>
+
+            <Space android:layout_width="0dp" android:layout_height="12dp"/>
+
+            <!-- Optional Goal -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(Optional) Create Goal"
+                android:textColor="@color/text_primary"/>
+            <EditText
+                android:id="@+id/etGoal"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="e.g. Emergency Fund"
+                android:background="@drawable/bg_input"
+                android:padding="12dp"
+                android:inputType="textCapSentences"/>
+
+            <Space android:layout_width="0dp" android:layout_height="16dp"/>
+
+            <Button
+                android:id="@+id/btnSaveSetup"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Save and Continue"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_primary_button"/>
         </LinearLayout>
     </LinearLayout>
 
