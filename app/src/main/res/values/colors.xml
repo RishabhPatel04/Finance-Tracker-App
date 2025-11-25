@@ -14,4 +14,21 @@
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#6B7280</color>
     <color name="outline">#E5E7EB</color>
+
+    <!-- Dashboard colors -->
+    <color name="income_bg">#E8F5E9</color> <!-- Light green -->
+    <color name="income_icon">#4CAF50</color> <!-- Green -->
+    <color name="expense_bg">#FCE4EC</color> <!-- Light pink -->
+    <color name="expense_icon">#F44336</color> <!-- Red -->
+    <color name="remaining_bg">#F3E5F5</color> <!-- Light purple -->
+    <color name="remaining_icon">#9C27B0</color> <!-- Purple -->
+    <color name="chart_purple">#6C63FF</color>
+    <color name="chart_red">#F44336</color>
+    <color name="chart_orange">#FF9800</color>
+    <color name="button_dark_purple">#5B55E6</color>
+    <color name="button_green">#4CAF50</color>
+    <color name="button_red">#F44336</color>
+    <color name="button_orange">#FF9800</color>
+    <color name="button_light_purple">#BA68C8</color>
+    <color name="button_dark_gray">#424242</color>
 </resources>
