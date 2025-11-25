@@ -14,4 +14,33 @@
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#6B7280</color>
     <color name="outline">#E5E7EB</color>
+
+    <!-- Dashboard colors -->
+    <color name="income_bg">#E8F5E9</color> <!-- Light green -->
+    <color name="income_icon">#4CAF50</color> <!-- Green -->
+    <color name="expense_bg">#FCE4EC</color> <!-- Light pink -->
+    <color name="expense_icon">#F44336</color> <!-- Red -->
+    <color name="remaining_bg">#F3E5F5</color> <!-- Light purple -->
+    <color name="remaining_icon">#9C27B0</color> <!-- Purple -->
+    <color name="chart_purple">#6C63FF</color>
+    <color name="chart_red">#F44336</color>
+    <color name="chart_orange">#FF9800</color>
+    <color name="button_dark_purple">#5B55E6</color>
+    <color name="button_green">#4CAF50</color>
+    <color name="button_red">#F44336</color>
+    <color name="button_orange">#FF9800</color>
+    <color name="button_light_purple">#BA68C8</color>
+    <color name="button_dark_gray">#424242</color>
+
+    <!-- Transaction Category Colors (dark = important, light = less important) -->
+    <color name="category_mortgage">#6320EE</color> <!-- Darkest - Most Important -->
+    <color name="category_insurance">#6B36F3</color>
+    <color name="category_debt">#724BF7</color>
+    <color name="category_utilities">#7960FB</color>
+    <color name="category_savings">#7D6BFD</color>
+    <color name="category_investments">#8075FF</color>
+    <color name="category_food">#887DFF</color>
+    <color name="category_personal_care">#8F85FF</color>
+    <color name="category_subscriptions">#9E94FE</color>
+    <color name="category_travel">#BCB3FD</color> <!-- Lightest - Least Important -->
 </resources>
