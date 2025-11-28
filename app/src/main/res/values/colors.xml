@@ -31,4 +31,16 @@
     <color name="button_orange">#FF9800</color>
     <color name="button_light_purple">#BA68C8</color>
     <color name="button_dark_gray">#424242</color>
+
+    <!-- Transaction Category Colors (dark = important, light = less important) -->
+    <color name="category_mortgage">#6320EE</color> <!-- Darkest - Most Important -->
+    <color name="category_insurance">#6B36F3</color>
+    <color name="category_debt">#724BF7</color>
+    <color name="category_utilities">#7960FB</color>
+    <color name="category_savings">#7D6BFD</color>
+    <color name="category_investments">#8075FF</color>
+    <color name="category_food">#887DFF</color>
+    <color name="category_personal_care">#8F85FF</color>
+    <color name="category_subscriptions">#9E94FE</color>
+    <color name="category_travel">#BCB3FD</color> <!-- Lightest - Least Important -->
 </resources>
