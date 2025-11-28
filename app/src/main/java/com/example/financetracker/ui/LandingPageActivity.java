@@ -2,34 +2,39 @@ package com.example.financetracker.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
-import com.example.financetracker.DonutChartView;
 import com.example.financetracker.MainActivity;
 import com.example.financetracker.R;
+import com.example.financetracker.views.DonutChartView;
 import com.example.financetracker.data.AppDatabase;
-import com.example.financetracker.data.entity.User;
+import com.example.financetracker.data.entity.Transaction;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * LandingPageActivity is the authenticated landing screen (dashboard) of the app.
- * Displays username, admin status, financial summary, and quick action buttons.
- */
 public class LandingPageActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "FinanceTrackerPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
@@ -38,13 +43,16 @@ public class LandingPageActivity extends AppCompatActivity {
 
     private TextView tvMonthYear;
     private TextView tvIncome;
-    private TextView tvExpenses;
     private TextView tvBudget;
     private TextView tvTotalSpent;
     private EditText etSearch;
     private DonutChartView donutChart;
     private View llSpendingChart;
     private TextView tvSpendingByCategory;
+    private LinearLayout llCategoryLegend;
+
+    private String currentUsername;
+    private boolean isAdmin;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -59,24 +67,25 @@ public class LandingPageActivity extends AppCompatActivity {
         loadDashboardData();
     }
 
-    /**
-     * Initializes all view references from the layout.
-     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserInfo();
+        loadDashboardData();
+    }
+
     private void initializeViews() {
         tvMonthYear = findViewById(R.id.tvMonthYear);
         tvIncome = findViewById(R.id.tvIncome);
-        tvExpenses = findViewById(R.id.tvExpenses);
         tvBudget = findViewById(R.id.tvBudget);
         tvTotalSpent = findViewById(R.id.tvTotalSpent);
         etSearch = findViewById(R.id.etSearch);
         donutChart = findViewById(R.id.donutChart);
         llSpendingChart = findViewById(R.id.llSpendingChart);
         tvSpendingByCategory = findViewById(R.id.tvSpendingByCategory);
+        llCategoryLegend = findViewById(R.id.llCategoryLegend);
     }
 
-    /**
-     * Sets up the month and year display to show current month.
-     */
     private void setupMonthYear() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
@@ -84,161 +93,284 @@ public class LandingPageActivity extends AppCompatActivity {
         tvMonthYear.setText(monthYear);
     }
 
-    /**
-     * Loads and displays user information from SharedPreferences.
-     */
     private void loadUserInfo() {
-        // User info is now handled in the menu visibility logic
-        // No UI elements need to be updated here anymore
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentUsername = prefs.getString(KEY_USERNAME, "");
+        isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
     }
 
-    /**
-     * Sets up click listeners for menu, profile, admin, logout, and quick action buttons.
-     */
     private void setupClickListeners() {
         ImageButton btnMenu = findViewById(R.id.btnMenu);
         ImageButton btnProfile = findViewById(R.id.btnProfile);
 
         if (btnMenu != null) {
-            btnMenu.setOnClickListener(v -> {
-                showMainMenu(v);
-            });
+            btnMenu.setOnClickListener(v -> showMainMenu(v));
         }
 
         if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                showProfileMenu(v);
-            });
+            btnProfile.setOnClickListener(v -> showProfileMenu(v));
         }
-
     }
 
-    /**
-     * Shows the main menu dropdown with Transactions, Budgets, Goals, and Settings options.
-     */
     private void showMainMenu(View anchor) {
-        PopupMenu popupMenu = new PopupMenu(this, anchor);
-        popupMenu.getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
-
-        // Show/hide admin-only menu items based on admin status
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
-        MenuItem budgetsItem = popupMenu.getMenu().findItem(R.id.menu_budgets);
-        MenuItem goalsItem = popupMenu.getMenu().findItem(R.id.menu_goals);
-        
-        if (budgetsItem != null) {
-            budgetsItem.setVisible(isAdmin);
-        }
-        if (goalsItem != null) {
-            goalsItem.setVisible(isAdmin);
-        }
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.menu_transactions) {
-                Intent intent = new Intent(this, TransactionsActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.menu_budgets) {
-                Toast.makeText(this, "Budgets", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to budgets screen (admin only)
-                return true;
-            } else if (itemId == R.id.menu_goals) {
-                Toast.makeText(this, "Goals", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to goals screen (admin only)
-                return true;
-            } else if (itemId == R.id.menu_settings) {
-                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to settings screen
-                return true;
+        try {
+            if (anchor == null) {
+                showToast("Menu error: Invalid anchor view");
+                return;
             }
-            return false;
-        });
 
-        popupMenu.show();
+            PopupMenu popupMenu = new PopupMenu(this, anchor);
+            popupMenu.getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
+
+            // Show/hide admin-only menu items
+            try {
+                boolean isAdmin = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                        .getBoolean(KEY_IS_ADMIN, false);
+                
+                MenuItem budgetsItem = popupMenu.getMenu().findItem(R.id.menu_budgets);
+                MenuItem goalsItem = popupMenu.getMenu().findItem(R.id.menu_goals);
+                
+                if (budgetsItem != null) budgetsItem.setVisible(isAdmin);
+                if (goalsItem != null) goalsItem.setVisible(isAdmin);
+            } catch (Exception e) {
+                Log.e("LandingPageActivity", "Error checking admin status", e);
+            }
+
+            popupMenu.setOnMenuItemClickListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.menu_transactions) {
+                    startActivity(new Intent(this, TransactionsActivity.class));
+                    return true;
+                } else if (itemId == R.id.menu_budgets) {
+                    showToast("Budgets feature coming soon");
+                    return true;
+                } else if (itemId == R.id.menu_goals) {
+                    showToast("Goals feature coming soon");
+                    return true;
+                } else if (itemId == R.id.menu_settings) {
+                    showToast("Settings feature coming soon");
+                    return true;
+                }
+                return false;
+            });
+
+            popupMenu.show();
+        } catch (Exception e) {
+            Log.e("LandingPageActivity", "Error showing menu", e);
+            showToast("Failed to show menu");
+        }
     }
 
-    /**
-     * Shows the profile dropdown menu with Admin Area and Logout options.
-     */
     private void showProfileMenu(View anchor) {
-        PopupMenu popupMenu = new PopupMenu(this, anchor);
-        popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
+        try {
+            PopupMenu popupMenu = new PopupMenu(this, anchor);
+            popupMenu.getMenuInflater().inflate(R.menu.profile_menu, popupMenu.getMenu());
 
-        // Show/hide admin menu item based on admin status
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
-        MenuItem adminItem = popupMenu.getMenu().findItem(R.id.menu_admin);
-        if (adminItem != null) {
-            adminItem.setVisible(isAdmin);
-        }
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.menu_admin) {
-                Intent intent = new Intent(this, AdminActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.menu_logout) {
-                logout();
-                return true;
+            // Show/hide admin menu item
+            boolean isAdmin = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                    .getBoolean(KEY_IS_ADMIN, false);
+            MenuItem adminItem = popupMenu.getMenu().findItem(R.id.menu_admin);
+            if (adminItem != null) {
+                adminItem.setVisible(isAdmin);
             }
-            return false;
-        });
 
-        popupMenu.show();
+            popupMenu.setOnMenuItemClickListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.menu_admin) {
+                    startActivity(new Intent(this, AdminActivity.class));
+                    return true;
+                } else if (itemId == R.id.menu_logout) {
+                    logout();
+                    return true;
+                }
+                return false;
+            });
+
+            popupMenu.show();
+        } catch (Exception e) {
+            Log.e("LandingPageActivity", "Error showing profile menu", e);
+            showToast("Failed to show profile menu");
+        }
     }
 
-    /**
-     * Logs out the user by clearing SharedPreferences and navigating to MainActivity.
-     */
     private void logout() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, false);
         editor.remove(KEY_USERNAME);
         editor.remove(KEY_IS_ADMIN);
         editor.apply();
 
         Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
-    /**
-     * Loads and displays dashboard data.
-     * Currently uses placeholder data. Will be replaced with actual data from database.
-     * Since there are no transactions yet, expenses are $0 and chart shows empty state.
-     */
     private void loadDashboardData() {
-        // TODO: Load actual data from Room database (income and budget from account setup)
-        // For now, using placeholder values
-        double income = 3200.0;
-        double budget = 2000.0;
-        double expenses = 0.0; // No transactions yet
+        // Sample data - replace with actual data from your database
+        executor.execute(() -> {
+            List<Transaction> transactions;
+            if (isAdmin) {
+                transactions = AppDatabase.getInstance(getApplicationContext())
+                        .transactionDao()
+                        .getAllTransactions();
+            } else {
+                transactions = AppDatabase.getInstance(getApplicationContext())
+                        .transactionDao()
+                        .getTransactionsByUser(currentUsername);
+            }
 
-        tvIncome.setText(formatCurrency(income));
-        tvBudget.setText(formatCurrency(budget));
-        tvExpenses.setText(formatCurrency(expenses));
+            double totalIncome = 0.0;
+            double totalExpenses = 0.0;
+            Map<String, Double> categoryTotals = new HashMap<>();
 
-        // Set up donut chart - show empty state with $0
-        // When transactions exist, this will show the actual spending breakdown
-        // For now, chart will be empty (DonutChartView handles empty arrays gracefully)
-        donutChart.setData(new float[]{}, new int[]{});
+            for (Transaction transaction : transactions) {
+                if ("income".equals(transaction.type)) {
+                    totalIncome += transaction.amount;
+                } else if ("expense".equals(transaction.type)) {
+                    double amount = Math.abs(transaction.amount);
+                    totalExpenses += amount;
 
-        // Hide category breakdown section since there are no transactions
-        llSpendingChart.setVisibility(View.GONE);
-        tvSpendingByCategory.setVisibility(View.GONE);
+                    Double current = categoryTotals.get(transaction.category);
+                    if (current == null) {
+                        current = 0.0;
+                    }
+                    categoryTotals.put(transaction.category, current + amount);
+                }
+            }
+
+            List<Float> values = new ArrayList<>();
+            List<Integer> colors = new ArrayList<>();
+            List<String> legendCategories = new ArrayList<>();
+
+            if (!categoryTotals.isEmpty()) {
+                int[] baseColors = new int[]{
+                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary),
+                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary_dark),
+                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary_end)
+                };
+
+                int index = 0;
+                for (Map.Entry<String, Double> entry : categoryTotals.entrySet()) {
+                    Double value = entry.getValue();
+                    if (value != null && value > 0) {
+                        values.add(value.floatValue());
+                        colors.add(baseColors[index % baseColors.length]);
+                        legendCategories.add(entry.getKey());
+                        index++;
+                    }
+                }
+            }
+
+            double remainingBudget = Math.max(0, totalIncome - totalExpenses);
+
+            final double finalTotalIncome = totalIncome;
+            final double finalTotalExpenses = totalExpenses;
+            final double finalRemainingBudget = remainingBudget;
+            final List<Float> chartValues = new ArrayList<>(values);
+            final List<Integer> chartColors = new ArrayList<>(colors);
+            final List<String> legendLabels = new ArrayList<>(legendCategories);
+            final Map<String, Double> finalCategoryTotals = new HashMap<>(categoryTotals);
+
+            runOnUiThread(() -> {
+                tvIncome.setText(formatCurrency(finalTotalIncome));
+                tvBudget.setText(formatCurrency(finalRemainingBudget));
+
+                donutChart.setCenterLabel("Total Spent");
+
+                if (chartValues.isEmpty()) {
+                    donutChart.setData(new ArrayList<>(), null);
+                    tvTotalSpent.setText(formatCurrency(0));
+                    llSpendingChart.setVisibility(View.GONE);
+                    tvSpendingByCategory.setVisibility(View.GONE);
+                    if (llCategoryLegend != null) {
+                        llCategoryLegend.removeAllViews();
+                        llCategoryLegend.setVisibility(View.GONE);
+                    }
+                } else {
+                    donutChart.setData(chartValues, chartColors);
+                    tvTotalSpent.setText(formatCurrency(finalTotalExpenses));
+                    llSpendingChart.setVisibility(View.VISIBLE);
+                    tvSpendingByCategory.setVisibility(View.VISIBLE);
+                    tvSpendingByCategory.setText("Spending by Category (MTD)");
+
+                    if (llCategoryLegend != null) {
+                        llCategoryLegend.setVisibility(View.VISIBLE);
+                        llCategoryLegend.removeAllViews();
+
+                        int[] indicatorDrawables = new int[]{
+                                R.drawable.dot_red,
+                                R.drawable.dot_orange,
+                                R.drawable.dot_purple
+                        };
+
+                        for (int i = 0; i < legendLabels.size(); i++) {
+                            String category = legendLabels.get(i);
+                            Double amountObj = finalCategoryTotals.get(category);
+                            double categoryAmount = amountObj != null ? amountObj : 0.0;
+
+                            LinearLayout row = new LinearLayout(LandingPageActivity.this);
+                            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            rowParams.bottomMargin = dpToPx(12);
+                            row.setLayoutParams(rowParams);
+                            row.setOrientation(LinearLayout.HORIZONTAL);
+                            row.setGravity(Gravity.CENTER_VERTICAL);
+
+                            View dot = new View(LandingPageActivity.this);
+                            LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(
+                                    dpToPx(12),
+                                    dpToPx(12)
+                            );
+                            dotParams.setMarginEnd(dpToPx(8));
+                            dot.setLayoutParams(dotParams);
+                            dot.setBackgroundResource(indicatorDrawables[i % indicatorDrawables.length]);
+
+                            TextView categoryText = new TextView(LandingPageActivity.this);
+                            LinearLayout.LayoutParams categoryParams = new LinearLayout.LayoutParams(
+                                    0,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    1f
+                            );
+                            categoryText.setLayoutParams(categoryParams);
+                            categoryText.setText(category);
+                            categoryText.setTextColor(ContextCompat.getColor(LandingPageActivity.this, R.color.text_primary));
+                            categoryText.setTextSize(14f);
+
+                            TextView amountText = new TextView(LandingPageActivity.this);
+                            LinearLayout.LayoutParams amountParams = new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            amountText.setLayoutParams(amountParams);
+                            amountText.setText(formatCurrency(categoryAmount));
+                            amountText.setTextColor(ContextCompat.getColor(LandingPageActivity.this, R.color.text_primary));
+                            amountText.setTextSize(14f);
+                            amountText.setTypeface(amountText.getTypeface(), android.graphics.Typeface.BOLD);
+
+                            row.addView(dot);
+                            row.addView(categoryText);
+                            row.addView(amountText);
+
+                            llCategoryLegend.addView(row);
+                        }
+                    }
+                }
+            });
+        });
     }
 
-    /**
-     * Formats a double value as currency string.
-     *
-     * @param amount the amount to format
-     * @return formatted currency string (e.g., "$3,200")
-     */
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
     private String formatCurrency(double amount) {
         return String.format(Locale.getDefault(), "$%,.0f", amount);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

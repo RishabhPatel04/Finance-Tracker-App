@@ -48,10 +48,11 @@ public class TransactionsActivity extends AppCompatActivity {
     private static final String KEY_IS_ADMIN = "isAdmin";
 
     private RecyclerView rvTransactions;
+    private TextView tvTotalIncome;
     private EditText etSearch;
     private ImageButton btnAddTransaction;
     private ImageButton btnBack; // Declare the back button
-    private LinearLayout llEmptyState;
+    private View llEmptyState;
     private TransactionAdapter adapter;
     private List<Transaction> transactionList;
     private List<Transaction> filteredList;
@@ -95,6 +96,7 @@ public class TransactionsActivity extends AppCompatActivity {
         btnAddTransaction = findViewById(R.id.btnAddTransaction);
         llEmptyState = findViewById(R.id.llEmptyState);
         btnBack = findViewById(R.id.btnBack); // Initialize the back button
+        tvTotalIncome = findViewById(R.id.tvTotalIncome); // Initialize total income TextView
     }
 
     private void setupRecyclerView() {
@@ -137,6 +139,7 @@ public class TransactionsActivity extends AppCompatActivity {
                 transactionList.clear();
                 transactionList.addAll(transactions);
                 filterTransactions(etSearch.getText().toString());
+                updateIncomeAndChart(); // Update income and chart after loading transactions
             });
         });
     }
@@ -175,6 +178,18 @@ public class TransactionsActivity extends AppCompatActivity {
             rvTransactions.setVisibility(View.VISIBLE);
             llEmptyState.setVisibility(View.GONE);
         }
+    }
+
+    private void updateIncomeAndChart() {
+        double totalIncome = 0;
+        for (Transaction transaction : transactionList) {
+            if ("income".equals(transaction.type)) {
+                totalIncome += transaction.amount;
+            }
+        }
+
+        // Update total income TextView
+        tvTotalIncome.setText(String.format(Locale.getDefault(), "$%,.2f", totalIncome));
     }
 
     private void showAddEditTransactionDialog(Transaction transaction) {
