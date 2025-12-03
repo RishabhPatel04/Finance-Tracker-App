@@ -1,5 +1,6 @@
 package com.example.financetracker.data.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -50,6 +51,7 @@ public interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE username = :username ORDER BY date DESC")
     List<Transaction> getTransactionsByUser(String username);
 
+    LiveData<Long>ObserveMonthSpent(long start, long end);
     /**
      * Retrieves all transactions (for admin users).
      *
@@ -85,5 +87,7 @@ public interface TransactionDao {
      */
     @Query("SELECT * FROM transactions WHERE transactionId = :transactionId LIMIT 1")
     Transaction getById(long transactionId);
+
+    LiveData<Long> observeMonthSpentForCategory(long stat, long end, String category);
 }
 

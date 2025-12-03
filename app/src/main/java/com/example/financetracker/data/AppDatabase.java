@@ -22,6 +22,9 @@ import java.util.concurrent.Executors;
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
+    public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
+    public abstract  com.example.financetracker.data.budget.MonthlyLimitDao monthlyLimitDao();
+
     private static volatile AppDatabase INSTANCE;
 
     public abstract UserDao userDao();
@@ -34,6 +37,8 @@ public abstract class AppDatabase extends RoomDatabase {
      * @param context application context used by Room
      * @return singleton {@link AppDatabase}
      */
+
+
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
