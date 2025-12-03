@@ -34,7 +34,7 @@
                     android:src="@drawable/ic_arrow_back"
                     android:contentDescription="@string/back"
                     android:padding="12dp"
-                    android:tint="?attr/colorPrimary" />
+                    app:tint="?attr/colorPrimary" />
 
                 <TextView
                     android:layout_width="0dp"
