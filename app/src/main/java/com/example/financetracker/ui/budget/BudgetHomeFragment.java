@@ -30,7 +30,7 @@ public class BudgetHomeFragment extends Fragment {
     private CategoryBudgetAdapter adapter;
 
     @Override public View onCreateView(@NonNull LayoutInflater inf, ViewGroup c, Bundle b){
-    return inf.inflate(R.layout.fragment_budget_home, c, false);
+    return inf.inflate(R.layout.budget_home, c, false);
     }
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b){
