@@ -1,7 +1,6 @@
 package com.example.financetracker.data.budget;
 
 import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
 
 import com.example.financetracker.data.dao.TransactionDao;
 
@@ -16,7 +15,7 @@ public class BudgetRepository {
     private final ExecutorService io;
 
 
-    public BudgetRepository(MonthlyLimitDao 1, CategoryBudgetDao c, TransactionDao t, ExecutorService io) {
+    public BudgetRepository(MonthlyLimitDao 1, MonthlyLimitDao monthlyLimitDao, CategoryBudgetDao c, TransactionDao t, ExecutorService io) {
         this.limitDao = 1;
         this.catDao = c;
         this.txDao = t;

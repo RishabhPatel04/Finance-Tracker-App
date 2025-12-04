@@ -1,5 +1,6 @@
-package com.example.financetracker.data.budget;
+package com.example.financetracker.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -11,15 +12,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financetracker.R;
 import com.example.financetracker.data.AppDatabase;
+import com.example.financetracker.data.budget.BudgetRepository;
+import com.example.financetracker.data.budget.CategoryBudgetAdapter;
+import com.example.financetracker.data.budget.CategoryBudgetsViewModel;
+import com.example.financetracker.data.budget.MonthlyLimitViewModel;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BudgetHomeFragment extends Fragment {
     private MonthlyLimitViewModel limitVm;
@@ -30,13 +36,15 @@ public class BudgetHomeFragment extends Fragment {
     return inf.inflate(R.layout.fragment_budget_home, c, false);
     }
     @Override
-    public void onViewCreated(@NonNull View v, @NonNullable Bundle b){
-        super.onViewCreated(v,b);
+    public void onViewCreated(@NonNull View v, @Nullable Bundle b){
+        super.onViewCreated(v, b);
 
         AppDatabase db = AppDatabase.getInstance(requireContext());
-        ExecutorService io = Executor.newSingleThreadExecutor();
+
+        ExecutorService io = Executors.newSingleThreadExecutor();
+
         BudgetRepository repo = new BudgetRepository(
-                db.monthlyLimitDao(), db.categoryBudgetDao(), db.transactionDao(),io);
+                db.monthlyLimitDao(), db.categoryBudgetDao(), db.transactionDao(), io);
 
         limitVm = new MonthlyLimitViewModel(repo);
         catsVm = new CategoryBudgetsViewModel(repo);
@@ -44,30 +52,33 @@ public class BudgetHomeFragment extends Fragment {
         ProgressBar monthPb = v.findViewById(R.id.monthProgress);
         TextView monthLabel = v.findViewById(R.id.monthLabel);
         EditText limitInput = v.findViewById(R.id.limitInput);
+
         v.findViewById(R.id.saveLimitBtn).setOnClickListener(x->
                 limitVm.saveLimit(limitInput.getText().toString()));
 
         limitVm.currentLabel.observe(getViewLifecycleOwner(), monthLabel::setText);
-        limitVm.progress.observe(getViewLifecycleOwner(), monthPb :: setProgress);
+        limitVm.progress.observe(getViewLifecycleOwner(), monthPb::setProgress);
 
         adapter = new CategoryBudgetAdapter(budget -> catsVm.remove(budget));
         RecyclerView rv = v.findViewById(R.id.budgetList);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
-        catsVm.rows.observe(getViewLifecycleOwner(), adapter ::submit);
+        catsVm.rows.observe(getViewLifecycleOwner(), adapter::submit);
+
         v.findViewById(R.id.addBudgetBtn).setOnClickListener(x-> showAddDialog());
     }
     private void showAddDialog(){
-        var ctx = requireContext();
+        Context ctx = requireContext();
+
         LinearLayout box = new LinearLayout(ctx);
         box.setOrientation(LinearLayout.VERTICAL);
         int p = (int)(16 * ctx.getResources(). getDisplayMetrics().density);
         box.setPadding(p,p,p,0);
         EditText category = new EditText(ctx);
-        category.setHint("Category(e.g., Food");
+        category.setHint("Category(e.g., Food)");
         EditText amount = new EditText(ctx);
-        amount.setHint("Limit( e.g., 150.00");
+        amount.setHint("Limit( e.g., 150.00)");
         amount.setInputType(InputType.TYPE_CLASS_NUMBER| InputType.TYPE_NUMBER_FLAG_DECIMAL);
         box.addView(category);
         box.addView(amount);
