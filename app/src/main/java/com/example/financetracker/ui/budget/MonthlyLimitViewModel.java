@@ -16,7 +16,7 @@ public class MonthlyLimitViewModel extends ViewModel {
     public MonthlyLimitViewModel(BudgetRepository repo) {
         this.repo = repo;
 
-        LiveData<MonthlyLimit> limit = repo.observerLimit();
+        LiveData<MonthlyLimit> limit = repo.observeLimit();
         LiveData<Long> spent = repo.observeMonthSpent();
         MediatorLiveData<String> label = new MediatorLiveData<>();
         MediatorLiveData<Integer> prog = new MediatorLiveData<>();

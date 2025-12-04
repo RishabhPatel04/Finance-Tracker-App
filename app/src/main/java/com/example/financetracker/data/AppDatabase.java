@@ -7,6 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.example.financetracker.data.budget.CategoryBudgetDao;
 import com.example.financetracker.data.dao.TransactionDao;
 import com.example.financetracker.data.dao.UserDao;
 import com.example.financetracker.data.entity.Transaction;
@@ -22,7 +23,8 @@ import java.util.concurrent.Executors;
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
-    public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
+    public abstract CategoryBudgetDao categoryBudgetDao();
+    //public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
     public abstract  com.example.financetracker.data.budget.MonthlyLimitDao monthlyLimitDao();
 
     private static volatile AppDatabase INSTANCE;

@@ -30,7 +30,7 @@ public class CategoryBudgetsViewModel  extends ViewModel {
         MediatorLiveData<List<Row>> m = new MediatorLiveData<>();
         m.setValue(Collections.emptyList());
 
-        m.addSource(repo.observeCat(), budgets->{
+        m.addSource(repo.observeCats(), budgets->{
             if (budgets == null){
                 m.setValue(Collections.emptyList());
                 return;
