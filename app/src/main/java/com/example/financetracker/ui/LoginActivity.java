@@ -30,13 +30,13 @@ public class LoginActivity extends AppCompatActivity {
     private static final String KEY_IS_ADMIN = "isAdmin";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    @Override
     /**
      * Initializes the UI and wires up click listeners for login and navigation
      * to the sign-up screen.
      *
      * @param savedInstanceState previous state if re-created
      */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
