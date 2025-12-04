@@ -22,8 +22,5 @@ public interface CategoryBudgetDao {
     @Delete
     void delete(CategoryBudget b);
 
-    @ColumnInfo(name = "category") @NonNull public String category = "";
-    @ColumnInfo(name = "limit_cents", defaultValue = "0") public long limitCents;
-
 
 }
