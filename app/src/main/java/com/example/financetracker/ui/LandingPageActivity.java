@@ -36,6 +36,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * LandingPageActivity displays the main dashboard after a successful login.
+ * It shows income, budget, and spending by category using a donut chart and
+ * provides navigation to transactions, admin tools, and profile actions.
+ */
 public class LandingPageActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "FinanceTrackerPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
@@ -69,6 +74,13 @@ public class LandingPageActivity extends AppCompatActivity {
         put("Travel", R.color.category_travel);
     }};
 
+    /**
+     * Sets up the landing page layout, initializes all views, configures the
+     * current month label and click listeners, and loads the initial dashboard
+     * data for the logged-in user.
+     *
+     * @param savedInstanceState previous state if the activity is re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +93,10 @@ public class LandingPageActivity extends AppCompatActivity {
         loadDashboardData();
     }
 
+    /**
+     * Refreshes user information and dashboard data whenever the landing page
+     * becomes visible again.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -88,6 +104,9 @@ public class LandingPageActivity extends AppCompatActivity {
         loadDashboardData();
     }
 
+    /**
+     * Finds and caches references to all views used in the landing page UI.
+     */
     private void initializeViews() {
         tvMonthYear = findViewById(R.id.tvMonthYear);
         tvIncome = findViewById(R.id.tvIncome);
@@ -113,6 +132,10 @@ public class LandingPageActivity extends AppCompatActivity {
         isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
     }
 
+    /**
+     * Wires up click listeners for the main menu and profile buttons shown on
+     * the landing page toolbar.
+     */
     private void setupClickListeners() {
         ImageButton btnMenu = findViewById(R.id.btnMenu);
         ImageButton btnProfile = findViewById(R.id.btnProfile);
@@ -126,6 +149,12 @@ public class LandingPageActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows the main popup menu for navigating to transactions, budgets,
+     * goals, and settings. Some options are visible only for admin users.
+     *
+     * @param anchor the view that anchors the popup menu
+     */
     private void showMainMenu(View anchor) {
         try {
             if (anchor == null) {
@@ -175,6 +204,11 @@ public class LandingPageActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows the profile popup menu for admin tools and logout actions.
+     *
+     * @param anchor the view that anchors the popup menu
+     */
     private void showProfileMenu(View anchor) {
         try {
             PopupMenu popupMenu = new PopupMenu(this, anchor);
@@ -207,6 +241,9 @@ public class LandingPageActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Clears the stored login state and navigates back to MainActivity.
+     */
     private void logout() {
         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, false);
@@ -220,6 +257,11 @@ public class LandingPageActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Loads all transactions from the database, aggregates income and
+     * expenses, and updates the donut chart, totals, and legend on the
+     * landing page.
+     */
     private void loadDashboardData() {
         // Sample data - replace with actual data from your database
         executor.execute(() -> {

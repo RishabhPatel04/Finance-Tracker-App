@@ -38,6 +38,12 @@ public class AdminActivity extends AppCompatActivity {
     private List<User> userList;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Verifies that the current user has admin privileges, initializes the
+     * RecyclerView for managing users, and begins loading user data from Room.
+     *
+     * @param savedInstanceState previous state if the activity is re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

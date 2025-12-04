@@ -27,6 +27,13 @@ import java.util.concurrent.Executors;
 public class AccountSetupActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    /**
+     * Initializes the account setup UI, including currency, category, income,
+     * budget, and goal inputs, and wires up the save behavior to persist
+     * selections into Room.
+     *
+     * @param savedInstanceState previous state if the activity is re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
