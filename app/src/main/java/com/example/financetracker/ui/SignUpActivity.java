@@ -22,11 +22,11 @@ import java.util.concurrent.Executors;
 public class SignUpActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    @Override
     /**
      * Initializes the UI and handles the create-account action.
      * On success the activity finishes and returns to Login.
      */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
