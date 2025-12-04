@@ -7,15 +7,17 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.example.financetracker.data.dao.AccountSettingsDao;
 import com.example.financetracker.data.dao.TransactionDao;
 import com.example.financetracker.data.dao.UserDao;
+import com.example.financetracker.data.entity.AccountSettings;
 import com.example.financetracker.data.entity.Transaction;
 import com.example.financetracker.data.entity.User;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {User.class, Transaction.class}, version = 3, exportSchema = false)
+@Database(entities = {User.class, Transaction.class, AccountSettings.class}, version = 4, exportSchema = false)
 /**
  * AppDatabase is the Room database entry point for the application.
  * It currently exposes only the {@link UserDao} and stores the DB as
@@ -26,6 +28,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract UserDao userDao();
     public abstract TransactionDao transactionDao();
+    public abstract AccountSettingsDao accountSettingsDao();
 
     /**
      * Returns a singleton instance of the database. The instance is created lazily

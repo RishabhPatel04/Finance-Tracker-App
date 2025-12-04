@@ -3,6 +3,7 @@ package com.example.financetracker.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -54,6 +55,19 @@ public class LandingPageActivity extends AppCompatActivity {
     private String currentUsername;
     private boolean isAdmin;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private static final Map<String, Integer> CATEGORY_COLORS = new HashMap<String, Integer>() {{
+        put("Mortgage/rent", R.color.category_mortgage);
+        put("Insuarance", R.color.category_insurance);
+        put("Debt", R.color.category_debt);
+        put("Utilities", R.color.category_utilities);
+        put("Savings", R.color.category_savings);
+        put("Investments", R.color.category_investments);
+        put("Food", R.color.category_food);
+        put("Personal Care", R.color.category_personal_care);
+        put("Subscriptions", R.color.category_subscriptions);
+        put("Travel", R.color.category_travel);
+    }};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,16 +223,11 @@ public class LandingPageActivity extends AppCompatActivity {
     private void loadDashboardData() {
         // Sample data - replace with actual data from your database
         executor.execute(() -> {
-            List<Transaction> transactions;
-            if (isAdmin) {
-                transactions = AppDatabase.getInstance(getApplicationContext())
-                        .transactionDao()
-                        .getAllTransactions();
-            } else {
-                transactions = AppDatabase.getInstance(getApplicationContext())
-                        .transactionDao()
-                        .getTransactionsByUser(currentUsername);
-            }
+            // Dashboard now shows global totals for all users so that regular users
+            // can also see admin-managed transactions.
+            List<Transaction> transactions = AppDatabase.getInstance(getApplicationContext())
+                    .transactionDao()
+                    .getAllTransactions();
 
             double totalIncome = 0.0;
             double totalExpenses = 0.0;
@@ -236,6 +245,20 @@ public class LandingPageActivity extends AppCompatActivity {
                         current = 0.0;
                     }
                     categoryTotals.put(transaction.category, current + amount);
+                } else if ("investment".equals(transaction.type)) {
+                    // Backward compatibility for legacy 'investment' rows
+                    if (transaction.amount >= 0) {
+                        totalIncome += transaction.amount;
+                    } else {
+                        double amount = Math.abs(transaction.amount);
+                        totalExpenses += amount;
+
+                        Double current = categoryTotals.get(transaction.category);
+                        if (current == null) {
+                            current = 0.0;
+                        }
+                        categoryTotals.put(transaction.category, current + amount);
+                    }
                 }
             }
 
@@ -244,20 +267,12 @@ public class LandingPageActivity extends AppCompatActivity {
             List<String> legendCategories = new ArrayList<>();
 
             if (!categoryTotals.isEmpty()) {
-                int[] baseColors = new int[]{
-                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary),
-                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary_dark),
-                        ContextCompat.getColor(LandingPageActivity.this, R.color.primary_end)
-                };
-
-                int index = 0;
                 for (Map.Entry<String, Double> entry : categoryTotals.entrySet()) {
                     Double value = entry.getValue();
                     if (value != null && value > 0) {
                         values.add(value.floatValue());
-                        colors.add(baseColors[index % baseColors.length]);
+                        colors.add(getCategoryColor(entry.getKey()));
                         legendCategories.add(entry.getKey());
-                        index++;
                     }
                 }
             }
@@ -298,12 +313,6 @@ public class LandingPageActivity extends AppCompatActivity {
                         llCategoryLegend.setVisibility(View.VISIBLE);
                         llCategoryLegend.removeAllViews();
 
-                        int[] indicatorDrawables = new int[]{
-                                R.drawable.dot_red,
-                                R.drawable.dot_orange,
-                                R.drawable.dot_purple
-                        };
-
                         for (int i = 0; i < legendLabels.size(); i++) {
                             String category = legendLabels.get(i);
                             Double amountObj = finalCategoryTotals.get(category);
@@ -326,7 +335,14 @@ public class LandingPageActivity extends AppCompatActivity {
                             );
                             dotParams.setMarginEnd(dpToPx(8));
                             dot.setLayoutParams(dotParams);
-                            dot.setBackgroundResource(indicatorDrawables[i % indicatorDrawables.length]);
+
+                            GradientDrawable dotBackground = new GradientDrawable();
+                            dotBackground.setShape(GradientDrawable.OVAL);
+                            int color = chartColors.isEmpty() ?
+                                    ContextCompat.getColor(LandingPageActivity.this, R.color.primary) :
+                                    chartColors.get(i % chartColors.size());
+                            dotBackground.setColor(color);
+                            dot.setBackground(dotBackground);
 
                             TextView categoryText = new TextView(LandingPageActivity.this);
                             LinearLayout.LayoutParams categoryParams = new LinearLayout.LayoutParams(
@@ -364,6 +380,11 @@ public class LandingPageActivity extends AppCompatActivity {
 
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
+    private int getCategoryColor(String category) {
+        Integer colorRes = CATEGORY_COLORS.get(category);
+        return colorRes != null ? ContextCompat.getColor(this, colorRes) : ContextCompat.getColor(this, R.color.category_travel);
     }
 
     private String formatCurrency(double amount) {

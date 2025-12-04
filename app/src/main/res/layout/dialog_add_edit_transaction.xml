@@ -26,8 +26,29 @@
             android:padding="8dp"
             android:layout_marginBottom="12dp" />
 
+        <!-- Investment Type (ROI vs Contribution) - used only when Type = Investment -->
+        <TextView
+            android:id="@+id/tvInvestmentModeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Investment Type"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone" />
+
+        <Spinner
+            android:id="@+id/spInvestmentMode"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_input"
+            android:padding="8dp"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
         <!-- Category Selection -->
         <TextView
+            android:id="@+id/tvCategoryLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Category"
