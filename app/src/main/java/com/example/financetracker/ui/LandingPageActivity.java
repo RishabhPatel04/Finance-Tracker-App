@@ -185,7 +185,11 @@ public class LandingPageActivity extends AppCompatActivity {
                     startActivity(new Intent(this, TransactionsActivity.class));
                     return true;
                 } else if (itemId == R.id.menu_budgets) {
-                    showToast("Budgets feature coming soon");
+                    startActivity(new Intent(
+                            LandingPageActivity.this,
+                            com.example.financetracker.ui.budget.BudgetsActivity.class
+                    ));
+                    //showToast("Budgets feature coming soon");
                     return true;
                 } else if (itemId == R.id.menu_goals) {
                     showToast("Goals feature coming soon");
