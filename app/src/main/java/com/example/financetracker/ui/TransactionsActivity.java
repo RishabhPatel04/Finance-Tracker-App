@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -185,6 +186,9 @@ public class TransactionsActivity extends AppCompatActivity {
         for (Transaction transaction : transactionList) {
             if ("income".equals(transaction.type)) {
                 totalIncome += transaction.amount;
+            } else if ("investment".equals(transaction.type) && transaction.amount > 0) {
+                // Backward compatibility: treat positive 'investment' rows as income
+                totalIncome += transaction.amount;
             }
         }
 
@@ -199,14 +203,43 @@ public class TransactionsActivity extends AppCompatActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_transaction, null);
         Spinner spType = dialogView.findViewById(R.id.spType);
         Spinner spCategory = dialogView.findViewById(R.id.spCategory);
+        Spinner spInvestmentMode = dialogView.findViewById(R.id.spInvestmentMode);
+        TextView tvInvestmentModeLabel = dialogView.findViewById(R.id.tvInvestmentModeLabel);
+        TextView tvCategoryLabel = dialogView.findViewById(R.id.tvCategoryLabel);
         EditText etAmount = dialogView.findViewById(R.id.etAmount);
         EditText etDescription = dialogView.findViewById(R.id.etDescription);
         EditText etDate = dialogView.findViewById(R.id.etDate);
 
         // Setup type spinner
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Expense", "Income"});
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Expense", "Income", "Investment"});
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spType.setAdapter(typeAdapter);
+
+        // Setup investment mode spinner (ROI vs Contribution)
+        ArrayAdapter<String> investmentModeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"ROI", "Contribution"});
+        investmentModeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spInvestmentMode.setAdapter(investmentModeAdapter);
+
+        spType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = parent.getItemAtPosition(position).toString();
+                boolean isInvestment = "Investment".equalsIgnoreCase(selected);
+                boolean isIncome = "Income".equalsIgnoreCase(selected);
+
+                int investmentVisibility = isInvestment ? View.VISIBLE : View.GONE;
+                tvInvestmentModeLabel.setVisibility(investmentVisibility);
+                spInvestmentMode.setVisibility(investmentVisibility);
+
+                // Hide category selection for pure Income; show for Expense/Investment
+                int categoryVisibility = isIncome ? View.GONE : View.VISIBLE;
+                tvCategoryLabel.setVisibility(categoryVisibility);
+                spCategory.setVisibility(categoryVisibility);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
 
         // Setup category spinner
         String[] categories = getResources().getStringArray(R.array.categories);
@@ -237,7 +270,31 @@ public class TransactionsActivity extends AppCompatActivity {
 
         // Pre-fill if editing
         if (transaction != null) {
-            spType.setSelection(transaction.type.equals("income") ? 1 : 0);
+            // Determine UI type and investment mode based on stored type, category, and amount
+            boolean isInvestmentCategory = "Investments".equals(transaction.category);
+            if (isInvestmentCategory && ("income".equals(transaction.type) || ("investment".equals(transaction.type) && transaction.amount >= 0))) {
+                // Investment ROI
+                spType.setSelection(typeAdapter.getPosition("Investment"));
+                spInvestmentMode.setSelection(investmentModeAdapter.getPosition("ROI"));
+            } else if (isInvestmentCategory && ("expense".equals(transaction.type) || ("investment".equals(transaction.type) && transaction.amount < 0))) {
+                // Investment Contribution
+                spType.setSelection(typeAdapter.getPosition("Investment"));
+                spInvestmentMode.setSelection(investmentModeAdapter.getPosition("Contribution"));
+            } else {
+                if ("expense".equals(transaction.type)) {
+                    spType.setSelection(typeAdapter.getPosition("Expense"));
+                } else if ("income".equals(transaction.type)) {
+                    spType.setSelection(typeAdapter.getPosition("Income"));
+                } else if ("investment".equals(transaction.type)) {
+                    // Fallback for legacy data without Investments category
+                    spType.setSelection(typeAdapter.getPosition("Investment"));
+                    if (transaction.amount >= 0) {
+                        spInvestmentMode.setSelection(investmentModeAdapter.getPosition("ROI"));
+                    } else {
+                        spInvestmentMode.setSelection(investmentModeAdapter.getPosition("Contribution"));
+                    }
+                }
+            }
             int categoryPosition = categoryAdapter.getPosition(transaction.category);
             if (categoryPosition >= 0) {
                 spCategory.setSelection(categoryPosition);
@@ -248,8 +305,19 @@ public class TransactionsActivity extends AppCompatActivity {
 
         builder.setView(dialogView);
         builder.setPositiveButton("Save", (dialog, which) -> {
-            String type = spType.getSelectedItem().toString().toLowerCase();
-            String category = spCategory.getSelectedItem().toString();
+            String selectedTypeLabel = spType.getSelectedItem().toString();
+            String investmentMode = spInvestmentMode.getSelectedItem() != null
+                    ? spInvestmentMode.getSelectedItem().toString()
+                    : "ROI";
+
+            // For Income, we don't want the user picking from expense categories.
+            // Store a fixed label instead; for Expense/Investment we use the selected category.
+            String category;
+            if ("Income".equalsIgnoreCase(selectedTypeLabel)) {
+                category = "Income";
+            } else {
+                category = spCategory.getSelectedItem().toString();
+            }
             String amountStr = etAmount.getText().toString().trim();
             String description = etDescription.getText().toString().trim();
 
@@ -260,10 +328,22 @@ public class TransactionsActivity extends AppCompatActivity {
 
             try {
                 double amount = Double.parseDouble(amountStr);
-                if (type.equals("expense")) {
-                    amount = -Math.abs(amount); // Expenses are negative
-                } else {
-                    amount = Math.abs(amount); // Income is positive
+                String storedType;
+
+                if ("Investment".equalsIgnoreCase(selectedTypeLabel)) {
+                    if ("Contribution".equalsIgnoreCase(investmentMode)) {
+                        storedType = "expense";
+                        amount = -Math.abs(amount); // Investment contribution is an expense
+                    } else { // ROI
+                        storedType = "income";
+                        amount = Math.abs(amount); // Investment ROI is income
+                    }
+                } else if ("Expense".equalsIgnoreCase(selectedTypeLabel)) {
+                    storedType = "expense";
+                    amount = -Math.abs(amount);
+                } else { // Income
+                    storedType = "income";
+                    amount = Math.abs(amount);
                 }
 
                 Transaction newTransaction = transaction != null ? transaction : new Transaction();
@@ -274,7 +354,7 @@ public class TransactionsActivity extends AppCompatActivity {
                 newTransaction.amount = amount;
                 newTransaction.description = description;
                 newTransaction.date = calendar.getTimeInMillis();
-                newTransaction.type = type;
+                newTransaction.type = storedType;
 
                 executor.execute(() -> {
                     if (transaction == null) {
@@ -312,8 +392,17 @@ public class TransactionsActivity extends AppCompatActivity {
                 .show();
     }
 
-    private int getCategoryColor(String category) {
-        Integer colorRes = CATEGORY_COLORS.get(category);
+    private int getCategoryColor(Transaction transaction) {
+        // Special handling for Investments: ROI vs Contribution use distinct colors
+        if ("Investments".equals(transaction.category)) {
+            if ("income".equals(transaction.type)) {
+                return ContextCompat.getColor(this, R.color.category_investment_roi);
+            } else if ("expense".equals(transaction.type)) {
+                return ContextCompat.getColor(this, R.color.category_investment_contribution);
+            }
+        }
+
+        Integer colorRes = CATEGORY_COLORS.get(transaction.category);
         return colorRes != null ? ContextCompat.getColor(this, colorRes) : ContextCompat.getColor(this, R.color.category_travel);
     }
 
@@ -365,7 +454,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
             public void bind(Transaction transaction) {
                 // Set category color
-                viewCategoryColor.setBackgroundColor(getCategoryColor(transaction.category));
+                viewCategoryColor.setBackgroundColor(getCategoryColor(transaction));
 
                 tvCategory.setText(transaction.category);
                 tvDescription.setText(transaction.description);

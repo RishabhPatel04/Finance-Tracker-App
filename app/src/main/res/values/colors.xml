@@ -32,15 +32,29 @@
     <color name="button_light_purple">#BA68C8</color>
     <color name="button_dark_gray">#424242</color>
 
-    <!-- Transaction Category Colors (dark = important, light = less important) -->
-    <color name="category_mortgage">#6320EE</color> <!-- Darkest - Most Important -->
-    <color name="category_insurance">#6B36F3</color>
-    <color name="category_debt">#724BF7</color>
-    <color name="category_utilities">#7960FB</color>
-    <color name="category_savings">#7D6BFD</color>
-    <color name="category_investments">#8075FF</color>
-    <color name="category_food">#887DFF</color>
-    <color name="category_personal_care">#8F85FF</color>
-    <color name="category_subscriptions">#9E94FE</color>
-    <color name="category_travel">#BCB3FD</color> <!-- Lightest - Least Important -->
+    <!-- Transaction Category Colors mapped to specific hex codes -->
+    <!-- Mortgage/Rent -->
+    <color name="category_mortgage">#8870FF</color>
+    <!-- Insurance -->
+    <color name="category_insurance">#0AADFF</color>
+    <!-- Debt -->
+    <color name="category_debt">#EC8583</color>
+    <!-- Utilities -->
+    <color name="category_utilities">#D65C70</color>
+    <!-- Savings -->
+    <color name="category_savings">#419F76</color>
+    <!-- Investments (generic fallback) -->
+    <color name="category_investments">#A5D49B</color>
+    <!-- Food -->
+    <color name="category_food">#F5BB8F</color>
+    <!-- Personal Care -->
+    <color name="category_personal_care">#CDE090</color>
+    <!-- Subscriptions -->
+    <color name="category_subscriptions">#FEF19A</color>
+    <!-- Travel -->
+    <color name="category_travel">#FAD695</color>
+
+    <!-- Investment-specific colors -->
+    <color name="category_investment_roi">#A5D49B</color>
+    <color name="category_investment_contribution">#FF3355</color>
 </resources>

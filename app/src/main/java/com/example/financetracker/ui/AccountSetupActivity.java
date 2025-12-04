@@ -4,6 +4,9 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.financetracker.R;
 
+import com.example.financetracker.data.AppDatabase;
+import com.example.financetracker.data.entity.AccountSettings;
+
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,11 +17,23 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.MultiAutoCompleteTextView;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * AccountSetupActivity shown after sign-up (or first login).
  * Presents the four onboarding actions. No logic yet.
  */
 public class AccountSetupActivity extends AppCompatActivity {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    /**
+     * Initializes the account setup UI, including currency, category, income,
+     * budget, and goal inputs, and wires up the save behavior to persist
+     * selections into Room.
+     *
+     * @param savedInstanceState previous state if the activity is re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +89,18 @@ public class AccountSetupActivity extends AppCompatActivity {
             }
 
             // TODO: Persist these selections in Room (future step)
+            executor.execute(() -> {
+                AccountSettings settings = new AccountSettings();
+                settings.currency = currency;
+                settings.categories = categoriesSelected;
+                settings.monthlyIncome = Double.parseDouble(incomeStr);
+                settings.monthlyBudget = Double.parseDouble(budgetStr);
+                settings.goal = goal;
+
+                AppDatabase.getInstance(getApplicationContext())
+                        .accountSettingsDao()
+                        .insert(settings);
+            });
             Toast.makeText(this, "Saved: " + currency + ", categories: " + categoriesSelected, Toast.LENGTH_SHORT).show();
             finish();
         });

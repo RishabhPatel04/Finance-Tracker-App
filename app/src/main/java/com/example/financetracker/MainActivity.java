@@ -21,6 +21,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
     private static final String KEY_USERNAME = "username";
 
+    /**
+     * Determines whether the user is already logged in and routes them either
+     * directly to the landing page or to the initial screen with Login and
+     * Create Account options.
+     *
+     * @param savedInstanceState previous state if the activity is re-created
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
