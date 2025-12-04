@@ -15,11 +15,11 @@ public class BudgetRepository {
     private final ExecutorService io;
 
 
-    public BudgetRepository(MonthlyLimitDao 1, MonthlyLimitDao monthlyLimitDao, CategoryBudgetDao c, TransactionDao t, ExecutorService io) {
-        this.limitDao = 1;
-        this.catDao = c;
-        this.txDao = t;
-        this.io = io;
+    public BudgetRepository(MonthlyLimitDao l, CategoryBudgetDao c, TransactionDao t, ExecutorService io) {
+        this.limitDao = l;   // CHANGED
+        this.catDao   = c;   // CHANGED
+        this.txDao    = t;   // CHANGED
+        this.io       = io;
     }
 
     public LiveData<MonthlyLimit>observerLimit(){
