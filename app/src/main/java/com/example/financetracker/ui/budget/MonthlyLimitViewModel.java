@@ -1,8 +1,11 @@
-package com.example.financetracker.data.budget;
+package com.example.financetracker.ui.budget;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.example.financetracker.data.budget.BudgetRepository;
+import com.example.financetracker.data.budget.MonthlyLimit;
 
 public class MonthlyLimitViewModel extends ViewModel {
     private final BudgetRepository repo;

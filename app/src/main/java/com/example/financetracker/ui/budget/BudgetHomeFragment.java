@@ -1,4 +1,4 @@
-package com.example.financetracker.ui;
+package com.example.financetracker.ui.budget;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -20,9 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.financetracker.R;
 import com.example.financetracker.data.AppDatabase;
 import com.example.financetracker.data.budget.BudgetRepository;
-import com.example.financetracker.data.budget.CategoryBudgetAdapter;
-import com.example.financetracker.data.budget.CategoryBudgetsViewModel;
-import com.example.financetracker.data.budget.MonthlyLimitViewModel;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -1,4 +1,4 @@
-package com.example.financetracker.data.budget;
+package com.example.financetracker.ui.budget;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.financetracker.R;
+import com.example.financetracker.data.budget.CategoryBudget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class CategoryBudgetAdapter extends RecyclerView.Adapter<CategoryBudgetAd
         data = rows == null? new ArrayList<>() : rows;
         notifyDataSetChanged();
     }
-    static class VH extends RecyclerView.ViewHolder{
+    public static class VH extends RecyclerView.ViewHolder{
         TextView category;
         TextView  amounts;
         ProgressBar progress;
@@ -51,7 +52,8 @@ public class CategoryBudgetAdapter extends RecyclerView.Adapter<CategoryBudgetAd
     }
     @Override
     public void onBindViewHolder(@NonNull VH h, int i){
-        var r = data.get(i);
+        CategoryBudgetsViewModel.Row r = data.get(i);
+        //var r = data.get(i);
         h.category.setText(r.budget.category);
         h.progress.setProgress(r.progress);
         h.amounts.setText(r.label);
