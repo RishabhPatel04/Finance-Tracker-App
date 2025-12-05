@@ -38,9 +38,9 @@
             android:background="@drawable/btn_outline_white"
             android:textColor="@android:color/black"
             android:textAllCaps="false"
-            android:text="Update Goals"
+            android:text="Create Goals"
             style="?attr/borderlessButtonStyle"
-            android:id="@+id/btnUpdateGoal"/>
+            android:id="@+id/btnCreateGoal"/>
         <Space android:layout_width="match_parent" android:layout_height="12dp"/>
 
         <Button
@@ -49,7 +49,11 @@
             android:background="@drawable/btn_outline_white"
             android:textColor="@android:color/black"
             android:textAllCaps="false"
-            android:text="Remove Goals"/>
+            android:text="Update Goals"
+            style="?attr/borderlessButtonStyle"
+            android:id="@+id/btnUpdateGoal"
+            />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="48dp"
