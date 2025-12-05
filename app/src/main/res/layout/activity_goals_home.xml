@@ -1,72 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
-
-    android:layout_height="match_parent">
-    <androidx.appcompat.widget.Toolbar
+    <!-- Top app bar -->
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/chart_purple"
-        app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_arrow_back" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:padding="16dp"
-        android:orientation="vertical"
-        android:background="drawable/box_outline_white">
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:title="Goals"
+        app:titleCentered="true"
+        app:backgroundTint="?attr/colorPrimary"/>
 
-        <TextView
+    <!-- CONTENT -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:fillViewport="true"
+        android:padding="16dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:gravity="center"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:text="Goals"
-            android:id="@+id/tvGoalsTitle" />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/btn_outline_white"
-            android:textColor="@android:color/black"
-            android:textAllCaps="false"
-            android:text="Create Goals"
-            style="?attr/borderlessButtonStyle"
-            android:id="@+id/btnCreateGoal"/>
-        <Space android:layout_width="match_parent" android:layout_height="12dp"/>
+            android:orientation="vertical">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/btn_outline_white"
-            android:textColor="@android:color/black"
-            android:textAllCaps="false"
-            android:text="Update Goals"
-            style="?attr/borderlessButtonStyle"
-            android:id="@+id/btnUpdateGoal"
-            />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/goalsPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardCornerRadius="6dp"
+                app:cardBackgroundColor="@android:color/white"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/outline_light">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:textColor="@android:color/black"
-            android:background="@drawable/btn_outline_white"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-            android:textAllCaps="false"
-            android:text="Remove Goals"
-            style="?attr/borderlessButtonStyle"
-            android:id="@+id/btnRemoveGoal"/>
+                    <TextView
+                        android:id="@+id/tvGoalsHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="GOALS"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:paddingBottom="8dp" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCreate"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Create Goals"
+                        android:layout_marginTop="8dp" />
 
-    </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUpdate"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Update Goals"
+                        android:layout_marginTop="8dp" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRemove"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Remove Goals"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="4dp" />
 
-</LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

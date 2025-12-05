@@ -32,6 +32,8 @@ import java.util.concurrent.Executors;
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
+    public abstract com.example.financetracker.data.goals.GoalDao goalDao();
+
     public abstract CategoryBudgetDao categoryBudgetDao();
     //public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
     public abstract  com.example.financetracker.data.budget.MonthlyLimitDao monthlyLimitDao();

@@ -27,7 +27,7 @@ public class GoalsActivity extends AppCompatActivity {
         findViewById(R.id.btnRemoveGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
 
     }
-    @Override
+    //@Override
     public boolean onSupportNegativeUp(){
         getOnBackPressedDispatcher().onBackPressed();
         return true;
