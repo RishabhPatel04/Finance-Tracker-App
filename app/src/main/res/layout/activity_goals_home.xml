@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+
+
+    android:layout_height="match_parent">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/chart_purple"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_arrow_back" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="drawable/box_outline_white">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:text="Goals"
+            android:id="@+id/tvGoalsTitle" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/btn_outline_white"
+            android:textColor="@android:color/black"
+            android:textAllCaps="false"
+            android:text="Update Goals"
+            style="?attr/borderlessButtonStyle"
+            android:id="@+id/btnUpdateGoal"/>
+        <Space android:layout_width="match_parent" android:layout_height="12dp"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/btn_outline_white"
+            android:textColor="@android:color/black"
+            android:textAllCaps="false"
+            android:text="Remove Goals"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:textColor="@android:color/black"
+            android:background="@drawable/btn_outline_white"
+
+            android:textAllCaps="false"
+            android:text="Remove Goals"
+            style="?attr/borderlessButtonStyle"
+            android:id="@+id/btnRemoveGoal"/>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
