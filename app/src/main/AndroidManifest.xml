@@ -22,6 +22,7 @@
         <activity android:name=".ui.SignUpActivity" android:exported="false" />
         <activity android:name=".ui.LoginActivity" android:exported="false" />
         <activity android:name=".ui.budget.BudgetsActivity" android:exported="false" android:parentActivityName=".ui.LandingPageActivity"/>
+        <activity android:name=".ui.goals.GoalsActivity" android:exported="false" android:parentActivityName=".ui.LandingPageActivity"/>
 
     </application>
 

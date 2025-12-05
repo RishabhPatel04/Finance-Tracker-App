@@ -25,8 +25,10 @@ import java.util.concurrent.Executors;
                 User.class,
                 CategoryBudget.class,
                 MonthlyLimit.class,
-                Transaction.class},
-        version = 4, exportSchema = false)
+                Transaction.class, com.example.financetracker.data.goals.Goal.class},
+
+        version = 6, exportSchema = false)
+
 
 @Database(entities = {User.class, Transaction.class, AccountSettings.class}, version = 4, exportSchema = false)
 /**
@@ -35,6 +37,8 @@ import java.util.concurrent.Executors;
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
+    public abstract com.example.financetracker.data.goals.GoalDao goalDao();
+
     public abstract CategoryBudgetDao categoryBudgetDao();
     //public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
     public abstract  com.example.financetracker.data.budget.MonthlyLimitDao monthlyLimitDao();
