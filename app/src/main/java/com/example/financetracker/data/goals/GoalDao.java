@@ -30,4 +30,6 @@ public interface GoalDao {
 
     @Query("SELECT * FROM goals WHERE id = :id LIMIT 1")
     Goal getById(long id);
+
+
 }

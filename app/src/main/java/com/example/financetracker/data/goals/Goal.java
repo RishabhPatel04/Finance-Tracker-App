@@ -8,14 +8,19 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "goals")
 
 public class Goal {
-    @PrimaryKey(autoGenerate = true) public long id;
-    @NonNull public String title = "";
+    @PrimaryKey(autoGenerate = true)
+    public long id;
+
+    @NonNull
+    public String title = "";
 
     public long targetCents;
     public long progressCents;
     public long savedCents;
     public long dueDateMillis;
     public String username;
+
+    // SINGLE source of truth for created_at:
     @ColumnInfo(name = "created_at")
-    public long createdAt; // e.g., System.currentTimeMillis()
+    public long createdAt;
 }
