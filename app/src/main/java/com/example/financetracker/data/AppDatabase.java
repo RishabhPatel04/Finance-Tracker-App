@@ -23,8 +23,10 @@ import java.util.concurrent.Executors;
                 User.class,
                 CategoryBudget.class,
                 MonthlyLimit.class,
-                Transaction.class},
-        version = 4, exportSchema = false)
+                Transaction.class, com.example.financetracker.data.goals.Goal.class},
+
+        version = 6, exportSchema = false)
+
 
 /**
  * AppDatabase is the Room database entry point for the application.

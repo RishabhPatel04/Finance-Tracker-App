@@ -26,6 +26,7 @@ public class GoalsActivity extends AppCompatActivity {
         findViewById(R.id.btnUpdateGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
         findViewById(R.id.btnRemoveGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
 
+
     }
     //@Override
     public boolean onSupportNegativeUp(){

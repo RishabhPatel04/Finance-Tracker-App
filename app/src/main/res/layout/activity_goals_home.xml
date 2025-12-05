@@ -14,9 +14,9 @@
         app:navigationIcon="?attr/homeAsUpIndicator"
         app:title="Goals"
         app:titleCentered="true"
-        app:backgroundTint="?attr/colorPrimary"/>
+        app:backgroundTint="?attr/colorPrimary" />
 
-    <!-- CONTENT -->
+    <!-- Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -37,7 +37,7 @@
                 app:cardCornerRadius="6dp"
                 app:cardBackgroundColor="@android:color/white"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/outline_light">
+                app:strokeColor="@android:color/darker_gray">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -49,35 +49,38 @@
                         android:id="@+id/tvGoalsHeader"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="GOALS"
-                        android:textStyle="bold"
                         android:gravity="center"
-                        android:paddingBottom="8dp" />
+                        android:paddingBottom="8dp"
+                        android:text="GOALS"
+                        android:textStyle="bold" />
 
+                    <!-- Create -->
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCreate"
+                        android:id="@+id/btnCreateGoal"
                         style="?attr/materialButtonOutlinedStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Create Goals"
-                        android:layout_marginTop="8dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnUpdate"
-                        style="?attr/materialButtonOutlinedStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Update Goals"
-                        android:layout_marginTop="8dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRemove"
-                        style="?attr/materialButtonOutlinedStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Remove Goals"
                         android:layout_marginTop="8dp"
-                        android:layout_marginBottom="4dp" />
+                        android:text="Create Goals" />
+
+                    <!-- Update -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUpdateGoal"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Update Goals" />
+
+                    <!-- Remove -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRemoveGoal"
+                        style="?attr/materialButtonOutlinedStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="Remove Goals" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
