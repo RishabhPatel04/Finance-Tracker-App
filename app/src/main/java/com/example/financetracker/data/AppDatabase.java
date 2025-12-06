@@ -7,6 +7,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.example.financetracker.data.budget.CategoryBudget;
+import com.example.financetracker.data.budget.CategoryBudgetDao;
+import com.example.financetracker.data.budget.MonthlyLimit;
 import com.example.financetracker.data.dao.AccountSettingsDao;
 import com.example.financetracker.data.dao.TransactionDao;
 import com.example.financetracker.data.dao.UserDao;
@@ -17,6 +20,14 @@ import com.example.financetracker.data.entity.User;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Database(
+        entities = {
+                User.class,
+                CategoryBudget.class,
+                MonthlyLimit.class,
+                Transaction.class},
+        version = 4, exportSchema = false)
+
 @Database(entities = {User.class, Transaction.class, AccountSettings.class}, version = 4, exportSchema = false)
 /**
  * AppDatabase is the Room database entry point for the application.
@@ -24,6 +35,10 @@ import java.util.concurrent.Executors;
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
+    public abstract CategoryBudgetDao categoryBudgetDao();
+    //public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();
+    public abstract  com.example.financetracker.data.budget.MonthlyLimitDao monthlyLimitDao();
+
     private static volatile AppDatabase INSTANCE;
 
     public abstract UserDao userDao();
@@ -37,6 +52,8 @@ public abstract class AppDatabase extends RoomDatabase {
      * @param context application context used by Room
      * @return singleton {@link AppDatabase}
      */
+
+
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {

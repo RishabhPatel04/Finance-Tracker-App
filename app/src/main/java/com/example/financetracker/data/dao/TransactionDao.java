@@ -1,5 +1,6 @@
 package com.example.financetracker.data.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -50,6 +51,7 @@ public interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE username = :username ORDER BY date DESC")
     List<Transaction> getTransactionsByUser(String username);
 
+//    LiveData<Long>ObserveMonthSpent(long start, long end);
     /**
      * Retrieves all transactions (for admin users).
      *
@@ -85,5 +87,34 @@ public interface TransactionDao {
      */
     @Query("SELECT * FROM transactions WHERE transactionId = :transactionId LIMIT 1")
     Transaction getById(long transactionId);
+
+    //LiveData<Long> observeMonthSpent(long l, long l1);
+
+    //LiveData<Long> observeMonthSpentForCategory(long l, long l1, String category);
+
+    //LiveData<Long> observeMonthSpentForCategory(long stat, long end, String category);
+    @Query("""
+           SELECT COALESCE(
+               ROUND(SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) * 100),
+               0
+           )
+           FROM transactions
+           WHERE date(date) >= date(datetime(:start/1000, 'unixepoch'))
+             AND date(date) <  date(datetime(:end/1000,  'unixepoch'))
+           """)
+    LiveData<Long> observeMonthSpent(long start, long end);
+
+
+    @Query("""
+           SELECT COALESCE(
+               ROUND(SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) * 100),
+               0
+           )
+           FROM transactions
+           WHERE date(date) >= date(datetime(:start/1000, 'unixepoch'))
+             AND date(date) <  date(datetime(:end/1000,  'unixepoch'))
+             AND category = :category
+           """)
+    LiveData<Long> observeMonthSpentForCategory(long start, long end, String category);
 }
 
