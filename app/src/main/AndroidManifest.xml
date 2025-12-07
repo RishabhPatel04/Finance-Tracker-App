@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +25,15 @@
         <activity android:name=".ui.LoginActivity" android:exported="false" />
         <activity android:name=".ui.budget.BudgetsActivity" android:exported="false" android:parentActivityName=".ui.LandingPageActivity"/>
         <activity android:name=".ui.goals.GoalsActivity" android:exported="false" android:parentActivityName=".ui.LandingPageActivity"/>
+        <activity android:name=".ui.exchange.ExchangeRatesActivity" android:exported="false" />
+
+        <receiver
+            android:name=".ui.notifications.BudgetReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.financetracker.ACTION_BUDGET_REMINDER" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
