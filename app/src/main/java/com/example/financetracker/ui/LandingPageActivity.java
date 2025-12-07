@@ -1,5 +1,6 @@
 package com.example.financetracker.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -9,9 +10,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,9 +23,10 @@ import androidx.core.content.ContextCompat;
 
 import com.example.financetracker.MainActivity;
 import com.example.financetracker.R;
-import com.example.financetracker.views.DonutChartView;
 import com.example.financetracker.data.AppDatabase;
 import com.example.financetracker.data.entity.Transaction;
+import com.example.financetracker.data.goals.Goal;
+import com.example.financetracker.views.DonutChartView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,11 +53,15 @@ public class LandingPageActivity extends AppCompatActivity {
     private TextView tvIncome;
     private TextView tvBudget;
     private TextView tvTotalSpent;
-    private EditText etSearch;
     private DonutChartView donutChart;
     private View llSpendingChart;
     private TextView tvSpendingByCategory;
     private LinearLayout llCategoryLegend;
+
+    private View goalCard;
+    private TextView tvGoalTitle;
+    private TextView tvGoalAmounts;
+    private ProgressBar goalProgress;
 
     private String currentUsername;
     private boolean isAdmin;
@@ -112,11 +118,15 @@ public class LandingPageActivity extends AppCompatActivity {
         tvIncome = findViewById(R.id.tvIncome);
         tvBudget = findViewById(R.id.tvBudget);
         tvTotalSpent = findViewById(R.id.tvTotalSpent);
-        etSearch = findViewById(R.id.etSearch);
         donutChart = findViewById(R.id.donutChart);
         llSpendingChart = findViewById(R.id.llSpendingChart);
         tvSpendingByCategory = findViewById(R.id.tvSpendingByCategory);
         llCategoryLegend = findViewById(R.id.llCategoryLegend);
+
+        goalCard = findViewById(R.id.goalCard);
+        tvGoalTitle = findViewById(R.id.tvGoalTitle);
+        tvGoalAmounts = findViewById(R.id.tvGoalAmounts);
+        goalProgress = findViewById(R.id.goalProgress);
     }
 
     private void setupMonthYear() {
@@ -165,24 +175,42 @@ public class LandingPageActivity extends AppCompatActivity {
             PopupMenu popupMenu = new PopupMenu(this, anchor);
             popupMenu.getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
 
-            // Show/hide admin-only menu items
-            try {
-                boolean isAdmin = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                        .getBoolean(KEY_IS_ADMIN, false);
-                
-                MenuItem budgetsItem = popupMenu.getMenu().findItem(R.id.menu_budgets);
-                MenuItem goalsItem = popupMenu.getMenu().findItem(R.id.menu_goals);
-                
-                if (budgetsItem != null) budgetsItem.setVisible(isAdmin);
-                if (goalsItem != null) goalsItem.setVisible(isAdmin);
-            } catch (Exception e) {
-                Log.e("LandingPageActivity", "Error checking admin status", e);
-            }
+            // Budgets and Goals are now available to all users, so we no longer
+            // hide them based on admin status.
 
             popupMenu.setOnMenuItemClickListener(item -> {
                 int itemId = item.getItemId();
                 if (itemId == R.id.menu_transactions) {
-                    startActivity(new Intent(this, TransactionsActivity.class));
+                    executor.execute(() -> {
+                        Long limitCents = null;
+                        try {
+                            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                            String username = prefs.getString(KEY_USERNAME, "");
+                            limitCents = AppDatabase.getInstance(getApplicationContext())
+                                    .monthlyLimitDao()
+                                    .currentLimitCents(username);
+                        } catch (Exception e) {
+                            Log.e("LandingPageActivity", "Error checking monthly limit", e);
+                        }
+                        final boolean hasBudget = limitCents != null && limitCents > 0;
+                        runOnUiThread(() -> {
+                            if (!hasBudget) {
+                                new AlertDialog.Builder(LandingPageActivity.this)
+                                        .setTitle("Set Budget First")
+                                        .setMessage("Please create your monthly budget before adding transactions.")
+                                        .setPositiveButton("Go to Budgets", (d, w) -> {
+                                            startActivity(new Intent(
+                                                    LandingPageActivity.this,
+                                                    com.example.financetracker.ui.budget.BudgetsActivity.class
+                                            ));
+                                        })
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+                            } else {
+                                startActivity(new Intent(LandingPageActivity.this, TransactionsActivity.class));
+                            }
+                        });
+                    });
                     return true;
                 } else if (itemId == R.id.menu_budgets) {
                     startActivity(new Intent(
@@ -196,8 +224,13 @@ public class LandingPageActivity extends AppCompatActivity {
                             com.example.financetracker.ui.goals.GoalsActivity.class));
                     //showToast("Goals feature coming soon");
                     return true;
+                } else if (itemId == R.id.menu_budget_reminder) {
+                    Intent broadcast = new Intent("com.example.financetracker.ACTION_BUDGET_REMINDER");
+                    sendBroadcast(broadcast);
+                    showToast("Budget reminder sent");
+                    return true;
                 } else if (itemId == R.id.menu_settings) {
-                    showToast("Settings feature coming soon");
+                    startActivity(new Intent(LandingPageActivity.this, SettingsActivity.class));
                     return true;
                 }
                 return false;
@@ -269,16 +302,23 @@ public class LandingPageActivity extends AppCompatActivity {
      * landing page.
      */
     private void loadDashboardData() {
-        // Sample data - replace with actual data from your database
         executor.execute(() -> {
-            // Dashboard now shows global totals for all users so that regular users
-            // can also see admin-managed transactions.
-            List<Transaction> transactions = AppDatabase.getInstance(getApplicationContext())
-                    .transactionDao()
-                    .getAllTransactions();
+            // Admins see all transactions; regular users see only their own.
+            List<Transaction> transactions;
+            if (isAdmin) {
+                transactions = AppDatabase.getInstance(getApplicationContext())
+                        .transactionDao()
+                        .getAllTransactions();
+            } else {
+                transactions = AppDatabase.getInstance(getApplicationContext())
+                        .transactionDao()
+                        .getTransactionsByUser(currentUsername);
+            }
 
             double totalIncome = 0.0;
             double totalExpenses = 0.0;
+            double budgetRelevantExpenses = 0.0;
+            double savingsTotal = 0.0;
             Map<String, Double> categoryTotals = new HashMap<>();
 
             for (Transaction transaction : transactions) {
@@ -287,6 +327,13 @@ public class LandingPageActivity extends AppCompatActivity {
                 } else if ("expense".equals(transaction.type)) {
                     double amount = Math.abs(transaction.amount);
                     totalExpenses += amount;
+                    // All expenses reduce income; only non-Savings reduce budget
+                    if (!"Savings".equals(transaction.category)) {
+                        budgetRelevantExpenses += amount;
+                    } else {
+                        // Savings contributions count toward goal progress
+                        savingsTotal += amount;
+                    }
 
                     Double current = categoryTotals.get(transaction.category);
                     if (current == null) {
@@ -296,10 +343,17 @@ public class LandingPageActivity extends AppCompatActivity {
                 } else if ("investment".equals(transaction.type)) {
                     // Backward compatibility for legacy 'investment' rows
                     if (transaction.amount >= 0) {
+                        // ROI behaves like income
                         totalIncome += transaction.amount;
                     } else {
+                        // Negative investment behaves like an expense
                         double amount = Math.abs(transaction.amount);
                         totalExpenses += amount;
+                        if (!"Savings".equals(transaction.category)) {
+                            budgetRelevantExpenses += amount;
+                        } else {
+                            savingsTotal += amount;
+                        }
 
                         Double current = categoryTotals.get(transaction.category);
                         if (current == null) {
@@ -308,6 +362,30 @@ public class LandingPageActivity extends AppCompatActivity {
                         categoryTotals.put(transaction.category, current + amount);
                     }
                 }
+            }
+
+            // Load latest goal for progress bar
+            Goal latestGoal = null;
+            double goalSaved = 0.0;
+            double goalTarget = 0.0;
+            int goalProgressPercent = 0;
+
+            try {
+                List<Goal> goals = AppDatabase.getInstance(getApplicationContext())
+                        .goalDao()
+                        .listNow();
+                if (goals != null && !goals.isEmpty()) {
+                    latestGoal = goals.get(0);
+                    if (latestGoal.targetCents > 0) {
+                        // Use Savings transactions as the source of truth
+                        goalSaved = savingsTotal;
+                        goalTarget = latestGoal.targetCents / 100.0;
+                        goalProgressPercent = (int) Math.min(100,
+                                Math.round(100.0 * goalSaved / goalTarget));
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("LandingPageActivity", "Error loading goals", e);
             }
 
             List<Float> values = new ArrayList<>();
@@ -325,19 +403,48 @@ public class LandingPageActivity extends AppCompatActivity {
                 }
             }
 
-            double remainingBudget = Math.max(0, totalIncome - totalExpenses);
+            Long limitCents = null;
+            try {
+                limitCents = AppDatabase.getInstance(getApplicationContext())
+                        .monthlyLimitDao()
+                        .currentLimitCents(currentUsername);
+            } catch (Exception e) {
+                Log.e("LandingPageActivity", "Error loading monthly limit", e);
+            }
+            double budgetLimit = limitCents == null ? 0.0 : (limitCents / 100.0);
+            final double finalBudgetAmount = Math.max(0.0, budgetLimit - budgetRelevantExpenses);
 
-            final double finalTotalIncome = totalIncome;
+            final double finalRemainingIncome = Math.max(0.0, totalIncome - totalExpenses);
             final double finalTotalExpenses = totalExpenses;
-            final double finalRemainingBudget = remainingBudget;
             final List<Float> chartValues = new ArrayList<>(values);
             final List<Integer> chartColors = new ArrayList<>(colors);
             final List<String> legendLabels = new ArrayList<>(legendCategories);
             final Map<String, Double> finalCategoryTotals = new HashMap<>(categoryTotals);
 
+            final Goal finalLatestGoal = latestGoal;
+            final double finalGoalSaved = goalSaved;
+            final double finalGoalTarget = goalTarget;
+            final int finalGoalProgress = goalProgressPercent;
+
             runOnUiThread(() -> {
-                tvIncome.setText(formatCurrency(finalTotalIncome));
-                tvBudget.setText(formatCurrency(finalRemainingBudget));
+                tvIncome.setText(formatCurrency(finalRemainingIncome));
+                tvBudget.setText(formatCurrency(finalBudgetAmount));
+
+                // Update goal progress card
+                if (goalCard != null) {
+                    if (finalLatestGoal == null) {
+                        goalCard.setVisibility(View.GONE);
+                    } else {
+                        goalCard.setVisibility(View.VISIBLE);
+                        tvGoalTitle.setText(finalLatestGoal.title);
+                        String amountsText = String.format(Locale.getDefault(), "%s / %s",
+                                formatCurrency(finalGoalSaved),
+                                formatCurrency(finalGoalTarget));
+                        tvGoalAmounts.setText(amountsText);
+                        goalProgress.setMax(100);
+                        goalProgress.setProgress(finalGoalProgress);
+                    }
+                }
 
                 donutChart.setCenterLabel("Total Spent");
 

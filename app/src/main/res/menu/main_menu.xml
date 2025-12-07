@@ -11,9 +11,11 @@
     <item
         android:id="@+id/menu_goals"
         android:title="Goals"
-        android:visible="false" />
+        android:visible="true" />
     <item
         android:id="@+id/menu_settings"
         android:title="Settings" />
+    <item
+        android:id="@+id/menu_budget_reminder"
+        android:title="Send Budget Reminder" />
 </menu>
-

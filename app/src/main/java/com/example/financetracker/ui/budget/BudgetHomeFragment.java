@@ -1,6 +1,7 @@
 package com.example.financetracker.ui.budget;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -40,8 +41,11 @@ public class BudgetHomeFragment extends Fragment {
 
         ExecutorService io = Executors.newSingleThreadExecutor();
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("FinanceTrackerPrefs", Context.MODE_PRIVATE);
+        String currentUsername = prefs.getString("username", "");
+
         BudgetRepository repo = new BudgetRepository(
-                db.monthlyLimitDao(), db.categoryBudgetDao(), db.transactionDao(), io);
+                db.monthlyLimitDao(), db.categoryBudgetDao(), db.transactionDao(), io, currentUsername);
 
         limitVm = new MonthlyLimitViewModel(repo);
         catsVm = new CategoryBudgetsViewModel(repo);

@@ -92,7 +92,7 @@ public interface TransactionDao {
 
     //LiveData<Long> observeMonthSpentForCategory(long l, long l1, String category);
 
-    //LiveData<Long> observeMonthSpentForCategory(long stat, long end, String category);
+    //LiveData<Long> observeMonthSpentForCategory(long l, long l1, String category);
     @Query("""
            SELECT COALESCE(
                ROUND(SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) * 100),
@@ -116,5 +116,32 @@ public interface TransactionDao {
              AND category = :category
            """)
     LiveData<Long> observeMonthSpentForCategory(long start, long end, String category);
-}
 
+    @Query("""
+           SELECT COALESCE(
+               ROUND(SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) * 100),
+               0
+           )
+           FROM transactions
+           WHERE username = :username
+             AND date(date) >= date(datetime(:start/1000, 'unixepoch'))
+             AND date(date) <  date(datetime(:end/1000,  'unixepoch'))
+           """)
+    LiveData<Long> observeMonthSpentForUser(long start, long end, String username);
+
+    @Query("""
+           SELECT COALESCE(
+               ROUND(SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) * 100),
+               0
+           )
+           FROM transactions
+           WHERE username = :username
+             AND date(date) >= date(datetime(:start/1000, 'unixepoch'))
+             AND date(date) <  date(datetime(:end/1000,  'unixepoch'))
+             AND category = :category
+           """)
+    LiveData<Long> observeMonthSpentForUserAndCategory(long start, long end, String username, String category);
+
+    @Query("UPDATE transactions SET username = :newUsername WHERE username = :oldUsername")
+    void reassignUsername(String oldUsername, String newUsername);
+}

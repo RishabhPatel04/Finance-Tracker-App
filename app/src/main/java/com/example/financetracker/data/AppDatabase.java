@@ -16,6 +16,8 @@ import com.example.financetracker.data.dao.UserDao;
 import com.example.financetracker.data.entity.AccountSettings;
 import com.example.financetracker.data.entity.Transaction;
 import com.example.financetracker.data.entity.User;
+import com.example.financetracker.data.goals.Goal;
+import com.example.financetracker.data.goals.GoalDao;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,19 +27,19 @@ import java.util.concurrent.Executors;
                 User.class,
                 CategoryBudget.class,
                 MonthlyLimit.class,
-                Transaction.class, com.example.financetracker.data.goals.Goal.class},
-
-        version = 6, exportSchema = false)
-
-
-@Database(entities = {User.class, Transaction.class, AccountSettings.class}, version = 4, exportSchema = false)
+                Transaction.class,
+                Goal.class,
+                AccountSettings.class
+        },
+        version = 7,
+        exportSchema = false)
 /**
  * AppDatabase is the Room database entry point for the application.
  * It currently exposes only the {@link UserDao} and stores the DB as
  * a single-instance using the application context.
  */
 public abstract class AppDatabase extends RoomDatabase {
-    public abstract com.example.financetracker.data.goals.GoalDao goalDao();
+    public abstract GoalDao goalDao();
 
     public abstract CategoryBudgetDao categoryBudgetDao();
     //public abstract  com.example.financetracker.data.budget.CategoryBudgetDao categoryBudgetDao();

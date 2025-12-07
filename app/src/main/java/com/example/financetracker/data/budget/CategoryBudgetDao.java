@@ -13,8 +13,8 @@ import java.util.List;
 
 @Dao
 public interface CategoryBudgetDao {
-    @Query("SELECT * FROM category_budgets ORDER BY category")
-    LiveData<List<CategoryBudget>> observeAll();
+    @Query("SELECT * FROM category_budgets WHERE username = :username ORDER BY category")
+    LiveData<List<CategoryBudget>> observeAll(String username);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long upsert(CategoryBudget b);
@@ -22,5 +22,6 @@ public interface CategoryBudgetDao {
     @Delete
     void delete(CategoryBudget b);
 
-
+    @Query("UPDATE category_budgets SET username = :newUsername WHERE username = :oldUsername")
+    void reassignUsername(String oldUsername, String newUsername);
 }
