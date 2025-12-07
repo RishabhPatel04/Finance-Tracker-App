@@ -53,33 +53,41 @@
                 android:clickable="true" />
         </LinearLayout>
 
-        <!-- Search Bar -->
+        <!-- Goal Progress Card -->
         <LinearLayout
+            android:id="@+id/goalCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_search"
-            android:padding="12dp"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
             android:layout_marginBottom="24dp">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_search"
-                android:layout_marginEnd="12dp" />
-
-            <EditText
-                android:id="@+id/etSearch"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvGoalTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Search for transactions"
-                android:textColorHint="@color/text_secondary"
+                android:text="Goal Progress"
                 android:textColor="@color/text_primary"
-                android:background="@android:color/transparent"
-                android:inputType="text"
-                android:imeOptions="actionSearch" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvGoalAmounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="$0 / $0"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                android:id="@+id/goalProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="8dp"
+                android:max="100" />
         </LinearLayout>
 
         <!-- Financial Summary Cards -->

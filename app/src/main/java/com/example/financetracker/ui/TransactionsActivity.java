@@ -2,6 +2,7 @@ package com.example.financetracker.ui;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -53,6 +54,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private EditText etSearch;
     private ImageButton btnAddTransaction;
     private ImageButton btnBack; // Declare the back button
+    private View cardExchangeRates;
     private View llEmptyState;
     private TransactionAdapter adapter;
     private List<Transaction> transactionList;
@@ -98,6 +100,7 @@ public class TransactionsActivity extends AppCompatActivity {
         llEmptyState = findViewById(R.id.llEmptyState);
         btnBack = findViewById(R.id.btnBack); // Initialize the back button
         tvTotalIncome = findViewById(R.id.tvTotalIncome); // Initialize total income TextView
+        cardExchangeRates = findViewById(R.id.cardExchangeRates);
     }
 
     private void setupRecyclerView() {
@@ -112,6 +115,14 @@ public class TransactionsActivity extends AppCompatActivity {
         btnAddTransaction.setOnClickListener(v -> showAddEditTransactionDialog(null));
 
         btnBack.setOnClickListener(v -> finish()); // Set up back button functionality
+
+        if (cardExchangeRates != null) {
+            cardExchangeRates.setOnClickListener(v -> {
+                Intent intent = new Intent(TransactionsActivity.this,
+                        com.example.financetracker.ui.exchange.ExchangeRatesActivity.class);
+                startActivity(intent);
+            });
+        }
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override

@@ -16,4 +16,7 @@ public interface AccountSettingsDao {
 
     @Query("SELECT * FROM account_settings ORDER BY id DESC")
     List<AccountSettings> getAll();
+
+    @Query("DELETE FROM account_settings")
+    void deleteAll();
 }
