@@ -23,8 +23,8 @@ public class GoalsActivity extends AppCompatActivity {
                 getOnBackPressedDispatcher().onBackPressed());
 
         findViewById(R.id.btnCreateGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
-        findViewById(R.id.btnUpdateGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
-        findViewById(R.id.btnRemoveGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
+        findViewById(R.id.btnUpdateGoal).setOnClickListener(v-> GoalsDialogs.showUpdate(this));
+        findViewById(R.id.btnRemoveGoal).setOnClickListener(v-> GoalsDialogs.showRemove(this));
 
 
     }

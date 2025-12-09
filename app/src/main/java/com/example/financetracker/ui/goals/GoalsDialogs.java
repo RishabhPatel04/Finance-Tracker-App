@@ -166,7 +166,7 @@ public class GoalsDialogs {
             List<Goal> goals = AppDatabase.getInstance(a.getApplicationContext()).goalDao().listNow();
             String[] labels = new String[goals.size()];
             for (int i = 0; i< goals.size(); i++) labels[i] = goals.get(i).title;
-
+//s
             a.runOnUiThread(()->{
                 if(goals.isEmpty()){
                     Snackbar.make(a.findViewById(android.R.id.content), " No goals o remove", Snackbar.LENGTH_SHORT).show();
