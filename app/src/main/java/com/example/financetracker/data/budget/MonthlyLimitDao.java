@@ -14,6 +14,8 @@ public interface MonthlyLimitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void upsert(MonthlyLimit m);
 
+    Long currentLimitCents();
+
     @Query("DELETE FROM monthly_limit")
     void clear();
 }
