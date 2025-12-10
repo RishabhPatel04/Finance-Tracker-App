@@ -2,6 +2,7 @@ package com.example.financetracker.data.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import android.content.Context;
 
@@ -38,8 +39,9 @@ public class AccountSettingsDaoTest {
         db.close();
     }
 
-    private AccountSettings createSampleSettings() {
+    private AccountSettings createSampleSettings(String username) {
         AccountSettings s = new AccountSettings();
+        s.username = username;
         s.currency = "USD";
         s.categories = "Food,Travel";
         s.monthlyIncome = 5000.0;
@@ -49,44 +51,46 @@ public class AccountSettingsDaoTest {
     }
 
     @Test
-    public void insertSettings_andGetAll() {
-        AccountSettings settings = createSampleSettings();
+    public void insertSettings_andGetForUser() {
+        AccountSettings settings = createSampleSettings("user1");
         long id = accountSettingsDao.insert(settings);
 
-        List<AccountSettings> all = accountSettingsDao.getAll();
-        assertEquals(1, all.size());
-        AccountSettings loaded = all.get(0);
-        assertNotNull(loaded);
+        AccountSettings loaded = accountSettingsDao.getForUser("user1");
+        assertNotNull("Settings should be loaded for user1", loaded);
         assertEquals("USD", loaded.currency);
         assertEquals("Save for vacation", loaded.goal);
     }
 
     @Test
-    public void insertWithSameId_replacesExistingRow() {
-        AccountSettings first = createSampleSettings();
-        long id = accountSettingsDao.insert(first);
+    public void insertWithSameUsername_replacesExistingRow() {
+        AccountSettings first = createSampleSettings("user1");
+        accountSettingsDao.insert(first);
 
-        AccountSettings updated = createSampleSettings();
-        updated.id = id;
+        AccountSettings updated = createSampleSettings("user1");
         updated.currency = "EUR";
         updated.monthlyBudget = 3500.0;
         accountSettingsDao.insert(updated);
 
-        List<AccountSettings> all = accountSettingsDao.getAll();
-        assertEquals(1, all.size());
-        AccountSettings reloaded = all.get(0);
+        AccountSettings reloaded = accountSettingsDao.getForUser("user1");
+        assertNotNull(reloaded);
         assertEquals("EUR", reloaded.currency);
         assertEquals(3500.0, reloaded.monthlyBudget, 0.001);
     }
 
     @Test
-    public void deleteAll_clearsTable() {
-        AccountSettings settings = createSampleSettings();
-        accountSettingsDao.insert(settings);
+    public void deleteForUser_removesOnlyThatUser() {
+        AccountSettings s1 = createSampleSettings("user1");
+        AccountSettings s2 = createSampleSettings("user2");
+        s2.currency = "CAD";
+        accountSettingsDao.insert(s1);
+        accountSettingsDao.insert(s2);
 
-        accountSettingsDao.deleteAll();
+        accountSettingsDao.deleteForUser("user1");
 
-        List<AccountSettings> all = accountSettingsDao.getAll();
-        assertEquals(0, all.size());
+        AccountSettings forUser1 = accountSettingsDao.getForUser("user1");
+        AccountSettings forUser2 = accountSettingsDao.getForUser("user2");
+        assertNull(forUser1);
+        assertNotNull(forUser2);
+        assertEquals("CAD", forUser2.currency);
     }
 }

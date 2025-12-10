@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
                 Goal.class,
                 AccountSettings.class
         },
-        version = 6,
+        version = 7,
         exportSchema = false)
 /**
  * AppDatabase is the Room database entry point for the application.

@@ -197,6 +197,7 @@ public class AdminActivity extends AppCompatActivity {
             private final TextView tvAdminBadge;
             private final Button btnEdit;
             private final Button btnDelete;
+            private final Button btnViewTransactions;
 
             public UserViewHolder(View itemView) {
                 super(itemView);
@@ -205,6 +206,7 @@ public class AdminActivity extends AppCompatActivity {
                 tvAdminBadge = itemView.findViewById(R.id.tvAdminBadge);
                 btnEdit = itemView.findViewById(R.id.btnEdit);
                 btnDelete = itemView.findViewById(R.id.btnDelete);
+                btnViewTransactions = itemView.findViewById(R.id.btnViewTransactions);
             }
 
             public void bind(User user) {
@@ -219,6 +221,12 @@ public class AdminActivity extends AppCompatActivity {
 
                 btnEdit.setOnClickListener(v -> showEditUserDialog(user));
                 btnDelete.setOnClickListener(v -> showDeleteUserDialog(user));
+
+                btnViewTransactions.setOnClickListener(v -> {
+                    Intent intent = new Intent(itemView.getContext(), TransactionsActivity.class);
+                    intent.putExtra(TransactionsActivity.EXTRA_TARGET_USERNAME, user.username);
+                    itemView.getContext().startActivity(intent);
+                });
             }
         }
     }

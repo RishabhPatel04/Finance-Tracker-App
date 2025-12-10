@@ -1,5 +1,6 @@
 package com.example.financetracker.ui;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.financetracker.R;
@@ -71,6 +72,22 @@ public class AccountSetupActivity extends AppCompatActivity {
                 }
                 tvCategories.setText(selected.toString());
             });
+            builder.setNeutralButton("Select All / None", (dialog, which) -> {
+                AlertDialog alertDialog = (AlertDialog) dialog;
+                boolean allSelected = true;
+                for (boolean sel : selectedCategories) {
+                    if (!sel) {
+                        allSelected = false;
+                        break;
+                    }
+                }
+                boolean newState = !allSelected;
+                for (int i = 0; i < selectedCategories.length; i++) {
+                    selectedCategories[i] = newState;
+                    android.widget.ListView listView = alertDialog.getListView();
+                    listView.setItemChecked(i, newState);
+                }
+            });
             builder.setNegativeButton("Cancel", null);
             builder.show();
         });
@@ -88,9 +105,12 @@ public class AccountSetupActivity extends AppCompatActivity {
                 return;
             }
 
-            // TODO: Persist these selections in Room (future step)
             executor.execute(() -> {
+                SharedPreferences prefs = getSharedPreferences("FinanceTrackerPrefs", MODE_PRIVATE);
+                String username = prefs.getString("username", "");
+
                 AccountSettings settings = new AccountSettings();
+                settings.username = username == null ? "" : username;
                 settings.currency = currency;
                 settings.categories = categoriesSelected;
                 settings.monthlyIncome = Double.parseDouble(incomeStr);
@@ -100,6 +120,11 @@ public class AccountSetupActivity extends AppCompatActivity {
                 AppDatabase.getInstance(getApplicationContext())
                         .accountSettingsDao()
                         .insert(settings);
+
+                // Also persist preferred categories in SharedPreferences for quick access
+                prefs.edit()
+                        .putString("preferred_categories_" + settings.username, categoriesSelected)
+                        .apply();
             });
             Toast.makeText(this, "Saved: " + currency + ", categories: " + categoriesSelected, Toast.LENGTH_SHORT).show();
             finish();

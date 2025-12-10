@@ -31,5 +31,6 @@ public interface GoalDao {
     @Query("SELECT * FROM goals WHERE id = :id LIMIT 1")
     Goal getById(long id);
 
-
+    @Query("UPDATE goals SET username = :newUsername WHERE username = :oldUsername")
+    void reassignUsername(String oldUsername, String newUsername);
 }

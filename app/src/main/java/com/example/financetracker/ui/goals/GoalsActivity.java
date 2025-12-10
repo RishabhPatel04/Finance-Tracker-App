@@ -22,9 +22,9 @@ public class GoalsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v->
                 getOnBackPressedDispatcher().onBackPressed());
 
-        findViewById(R.id.btnCreateGoal).setOnClickListener(v-> GoalsDialogs.showCreate(this));
-        findViewById(R.id.btnUpdateGoal).setOnClickListener(v-> GoalsDialogs.showUpdate(this));
-        findViewById(R.id.btnRemoveGoal).setOnClickListener(v-> GoalsDialogs.showRemove(this));
+        findViewById(R.id.btnCreateGoal).setOnClickListener(v -> GoalsDialogs.showCreate(this));
+        findViewById(R.id.btnUpdateGoal).setOnClickListener(v -> GoalsDialogs.showUpdate(this));
+        findViewById(R.id.btnRemoveGoal).setOnClickListener(v -> GoalsDialogs.showRemove(this));
 
 
     }

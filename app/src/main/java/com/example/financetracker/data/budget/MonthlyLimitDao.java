@@ -8,8 +8,11 @@ import androidx.room.Query;
 
 @Dao
 public interface MonthlyLimitDao {
-    @Query("SELECT * FROM monthly_limit WHERE id = 1 LIMIT 1")
-    LiveData<MonthlyLimit> observe();
+    @Query("SELECT * FROM monthly_limit WHERE username = :username LIMIT 1")
+    LiveData<MonthlyLimit> observe(String username);
+
+    @Query("SELECT limit_cents FROM monthly_limit WHERE username = :username LIMIT 1")
+    Long currentLimitCents(String username);
 
     @Query("SELECT limit_cents FROM monthly_limit WHERE id = 1 LIMIT 1")
     Long currentLimitCents();
@@ -17,8 +20,12 @@ public interface MonthlyLimitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void upsert(MonthlyLimit m);
 
-    Long currentLimitCents();
+    @Query("DELETE FROM monthly_limit WHERE username = :username")
+    void clearForUser(String username);
 
     @Query("DELETE FROM monthly_limit")
-    void clear();
+    void clearAll();
+
+    @Query("UPDATE monthly_limit SET username = :newUsername WHERE username = :oldUsername")
+    void reassignUsername(String oldUsername, String newUsername);
 }

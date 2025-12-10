@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
  * Admin users can add, edit, delete, and search all transactions.
  */
 public class TransactionsActivity extends AppCompatActivity {
+    public static final String EXTRA_TARGET_USERNAME = "extra_target_username";
     private static final String PREFS_NAME = "FinanceTrackerPrefs";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_IS_ADMIN = "isAdmin";
@@ -61,6 +62,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private List<Transaction> filteredList;
     private String currentUsername;
     private boolean isAdmin;
+    private boolean viewingSpecificUser;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     // Category to color mapping
@@ -86,6 +88,14 @@ public class TransactionsActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         currentUsername = prefs.getString(KEY_USERNAME, "");
         isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
+
+        String overrideUsername = getIntent().getStringExtra(EXTRA_TARGET_USERNAME);
+        if (isAdmin && overrideUsername != null && !overrideUsername.isEmpty()) {
+            currentUsername = overrideUsername;
+            viewingSpecificUser = true;
+        } else {
+            viewingSpecificUser = false;
+        }
 
         initializeViews();
         setupRecyclerView();
@@ -141,7 +151,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private void loadTransactions() {
         executor.execute(() -> {
             List<Transaction> transactions;
-            if (isAdmin) {
+            if (isAdmin && !viewingSpecificUser) {
                 transactions = AppDatabase.getInstance(getApplicationContext()).transactionDao().getAllTransactions();
             } else {
                 transactions = AppDatabase.getInstance(getApplicationContext()).transactionDao().getTransactionsByUser(currentUsername);
@@ -163,7 +173,7 @@ public class TransactionsActivity extends AppCompatActivity {
         } else {
             executor.execute(() -> {
                 List<Transaction> results;
-                if (isAdmin) {
+                if (isAdmin && !viewingSpecificUser) {
                     results = AppDatabase.getInstance(getApplicationContext()).transactionDao().searchAllTransactions(query);
                 } else {
                     results = AppDatabase.getInstance(getApplicationContext()).transactionDao().searchTransactionsByUser(currentUsername, query);
@@ -252,8 +262,32 @@ public class TransactionsActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
-        // Setup category spinner
-        String[] categories = getResources().getStringArray(R.array.categories);
+        // Setup category spinner, respecting user preferred categories when available
+        String[] allCategories = getResources().getStringArray(R.array.categories);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String preferred = prefs.getString("preferred_categories_" + currentUsername, null);
+
+        String[] categories;
+        if (!TextUtils.isEmpty(preferred)) {
+            String[] tokens = preferred.split(",");
+            java.util.List<String> filtered = new java.util.ArrayList<>();
+            for (String base : allCategories) {
+                for (String t : tokens) {
+                    if (base.equalsIgnoreCase(t.trim())) {
+                        filtered.add(base);
+                        break;
+                    }
+                }
+            }
+            if (filtered.isEmpty()) {
+                categories = allCategories;
+            } else {
+                categories = filtered.toArray(new String[0]);
+            }
+        } else {
+            categories = allCategories;
+        }
+
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spCategory.setAdapter(categoryAdapter);

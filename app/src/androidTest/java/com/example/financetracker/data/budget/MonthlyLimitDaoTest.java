@@ -39,11 +39,11 @@ public class MonthlyLimitDaoTest {
 
     @Test
     public void upsertLimit_insertsRow() {
-        MonthlyLimit limit = new MonthlyLimit(50_000L);
+        MonthlyLimit limit = new MonthlyLimit("user1", 50_000L);
         monthlyLimitDao.upsert(limit);
 
         SupportSQLiteDatabase sqlDb = db.getOpenHelper().getReadableDatabase();
-        Cursor c = sqlDb.query("SELECT limit_cents FROM monthly_limit WHERE id = 1");
+        Cursor c = sqlDb.query("SELECT limit_cents FROM monthly_limit WHERE username = 'user1'");
         try {
             assertTrue(c.moveToFirst());
             long stored = c.getLong(0);
@@ -55,10 +55,10 @@ public class MonthlyLimitDaoTest {
 
     @Test
     public void upsertLimit_overwritesExistingRow() {
-        MonthlyLimit first = new MonthlyLimit(10_000L);
+        MonthlyLimit first = new MonthlyLimit("user1", 10_000L);
         monthlyLimitDao.upsert(first);
 
-        MonthlyLimit second = new MonthlyLimit(80_000L);
+        MonthlyLimit second = new MonthlyLimit("user1", 80_000L);
         monthlyLimitDao.upsert(second);
 
         SupportSQLiteDatabase sqlDb = db.getOpenHelper().getReadableDatabase();
@@ -74,10 +74,10 @@ public class MonthlyLimitDaoTest {
 
     @Test
     public void clearLimit_deletesAllRows() {
-        MonthlyLimit limit = new MonthlyLimit(25_000L);
+        MonthlyLimit limit = new MonthlyLimit("user1", 25_000L);
         monthlyLimitDao.upsert(limit);
 
-        monthlyLimitDao.clear();
+        monthlyLimitDao.clearAll();
 
         SupportSQLiteDatabase sqlDb = db.getOpenHelper().getReadableDatabase();
         Cursor c = sqlDb.query("SELECT COUNT(*) FROM monthly_limit");

@@ -69,6 +69,14 @@ public class LandingPageNavigationTest {
     }
 
     @Test
+    public void menuSettings_startsSettingsActivity() {
+        ActivityScenario.launch(LandingPageActivity.class);
+        onView(withId(R.id.btnMenu)).perform(click());
+        onView(withText("Settings")).perform(click());
+        intended(hasComponent(SettingsActivity.class.getName()));
+    }
+
+    @Test
     public void profileAdmin_startsAdminActivity_whenAdmin() {
         ActivityScenario.launch(LandingPageActivity.class);
         onView(withId(R.id.btnProfile)).perform(click());

@@ -39,7 +39,7 @@ public class CategoryBudgetDaoTest {
 
     @Test
     public void insertCategoryBudget_persistsRow() {
-        CategoryBudget b = new CategoryBudget("Food", 10_000L);
+        CategoryBudget b = new CategoryBudget("user1", "Food", 10_000L);
         categoryBudgetDao.upsert(b);
 
         SupportSQLiteDatabase sqlDb = db.getOpenHelper().getReadableDatabase();
@@ -55,10 +55,10 @@ public class CategoryBudgetDaoTest {
 
     @Test
     public void upsertCategoryBudget_updatesExistingRow() {
-        CategoryBudget b1 = new CategoryBudget("Travel", 5_000L);
+        CategoryBudget b1 = new CategoryBudget("user1", "Travel", 5_000L);
         categoryBudgetDao.upsert(b1);
 
-        CategoryBudget b2 = new CategoryBudget("Travel", 20_000L);
+        CategoryBudget b2 = new CategoryBudget("user1", "Travel", 20_000L);
         categoryBudgetDao.upsert(b2);
 
         SupportSQLiteDatabase sqlDb = db.getOpenHelper().getReadableDatabase();
@@ -74,7 +74,7 @@ public class CategoryBudgetDaoTest {
 
     @Test
     public void deleteCategoryBudget_removesRow() {
-        CategoryBudget b = new CategoryBudget("Utilities", 15_000L);
+        CategoryBudget b = new CategoryBudget("user1", "Utilities", 15_000L);
         categoryBudgetDao.upsert(b);
 
         categoryBudgetDao.delete(b);

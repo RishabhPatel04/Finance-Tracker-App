@@ -175,19 +175,8 @@ public class LandingPageActivity extends AppCompatActivity {
             PopupMenu popupMenu = new PopupMenu(this, anchor);
             popupMenu.getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
 
-            // Show/hide admin-only menu items
-            try {
-                boolean isAdmin = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                        .getBoolean(KEY_IS_ADMIN, false);
-                
-                MenuItem budgetsItem = popupMenu.getMenu().findItem(R.id.menu_budgets);
-                MenuItem goalsItem = popupMenu.getMenu().findItem(R.id.menu_goals);
-                
-                if (budgetsItem != null) budgetsItem.setVisible(isAdmin);
-                if (goalsItem != null) goalsItem.setVisible(isAdmin);
-            } catch (Exception e) {
-                Log.e("LandingPageActivity", "Error checking admin status", e);
-            }
+            // Budgets and Goals are now available to all users, so we no longer
+            // hide them based on admin status.
 
             popupMenu.setOnMenuItemClickListener(item -> {
                 int itemId = item.getItemId();
@@ -195,9 +184,11 @@ public class LandingPageActivity extends AppCompatActivity {
                     executor.execute(() -> {
                         Long limitCents = null;
                         try {
+                            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                            String username = prefs.getString(KEY_USERNAME, "");
                             limitCents = AppDatabase.getInstance(getApplicationContext())
                                     .monthlyLimitDao()
-                                    .currentLimitCents();
+                                    .currentLimitCents(username);
                         } catch (Exception e) {
                             Log.e("LandingPageActivity", "Error checking monthly limit", e);
                         }
@@ -239,7 +230,7 @@ public class LandingPageActivity extends AppCompatActivity {
                     showToast("Budget reminder sent");
                     return true;
                 } else if (itemId == R.id.menu_settings) {
-                    showToast("Settings feature coming soon");
+                    startActivity(new Intent(LandingPageActivity.this, SettingsActivity.class));
                     return true;
                 }
                 return false;
@@ -416,7 +407,7 @@ public class LandingPageActivity extends AppCompatActivity {
             try {
                 limitCents = AppDatabase.getInstance(getApplicationContext())
                         .monthlyLimitDao()
-                        .currentLimitCents();
+                        .currentLimitCents(currentUsername);
             } catch (Exception e) {
                 Log.e("LandingPageActivity", "Error loading monthly limit", e);
             }

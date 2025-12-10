@@ -13,28 +13,27 @@ public class BudgetRepository {
     private final CategoryBudgetDao catDao;
     private final TransactionDao txDao;
     private final ExecutorService io;
-
-
-    public BudgetRepository(MonthlyLimitDao l, CategoryBudgetDao c, TransactionDao t, ExecutorService io) {
-        this.limitDao = l;   // CHANGED
-        this.catDao = c;   // CHANGED
-        this.txDao = t;   // CHANGED
+    private final String username;
+    public BudgetRepository(MonthlyLimitDao l, CategoryBudgetDao c, TransactionDao t, ExecutorService io, String username) {
+        this.limitDao = l;
+        this.catDao = c;
+        this.txDao = t;
         this.io = io;
+        this.username = username;
     }
 
     public LiveData<MonthlyLimit> observeLimit() {
-        return limitDao.observe();
+        return limitDao.observe(username);
     }
 
     public LiveData<List<CategoryBudget>> observeCats() {
-        return catDao.observeAll();
+        return catDao.observeAll(username);
     }
 
     public void saveLimitDollars(String dollars) {
         long cents = toCents(dollars);
         io.execute(() -> {
-            MonthlyLimit m = new MonthlyLimit();
-            m.limitCents = cents;
+            MonthlyLimit m = new MonthlyLimit(username, cents);
             limitDao.upsert(m);
         });
     }
@@ -42,9 +41,7 @@ public class BudgetRepository {
     public void upsertCategory(String category, String dollars) {
         long cents = toCents(dollars);
         io.execute(() -> {
-            CategoryBudget b = new CategoryBudget();
-            b.category = category.trim();
-            b.limitCents = cents;
+            CategoryBudget b = new CategoryBudget(username, category.trim(), cents);
             catDao.upsert(b);
         });
     }
@@ -55,12 +52,12 @@ public class BudgetRepository {
 
     public LiveData<Long> observeMonthSpent() {
         long[] r = monthRange();
-        return txDao.observeMonthSpent(r[0], r[1]);
+        return txDao.observeMonthSpentForUser(r[0], r[1], username);
     }
 
     public LiveData<Long> observeMonthSpentForCategory(String category) {
         long[] r = monthRange();
-        return txDao.observeMonthSpentForCategory(r[0], r[1], category);
+        return txDao.observeMonthSpentForUserAndCategory(r[0], r[1], username, category);
     }
 
     private static long toCents(String d) {
