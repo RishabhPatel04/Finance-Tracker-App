@@ -14,6 +14,9 @@ public interface MonthlyLimitDao {
     @Query("SELECT limit_cents FROM monthly_limit WHERE username = :username LIMIT 1")
     Long currentLimitCents(String username);
 
+    @Query("SELECT limit_cents FROM monthly_limit WHERE id = 1 LIMIT 1")
+    Long currentLimitCents();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void upsert(MonthlyLimit m);
 
